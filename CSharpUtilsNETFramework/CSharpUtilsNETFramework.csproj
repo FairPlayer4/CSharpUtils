@@ -1,0 +1,122 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{6DC49D17-0236-4FF9-AB19-2BD15438DB61}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>CSharpUtilsNETFramework</RootNamespace>
+    <AssemblyName>CSharpUtilsNETFramework</AssemblyName>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <Deterministic>true</Deterministic>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="JetBrains.Annotations, Version=2019.1.3.0, Culture=neutral, PublicKeyToken=1010a0d8d6380325, processorArchitecture=MSIL">
+      <HintPath>..\packages\JetBrains.Annotations.2019.1.3\lib\net20\JetBrains.Annotations.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Controls\ControlExtensions.cs" />
+    <Compile Include="Controls\ListViewExtensions.cs" />
+    <Compile Include="FileUtils.cs" />
+    <Compile Include="GUI\ControlAdapters\AbstractAdapters\ControlObjectAdapter.cs" />
+    <Compile Include="GUI\ControlAdapters\AbstractAdapters\TableObjectAdapter.cs" />
+    <Compile Include="GUI\ControlAdapters\ComboboxEnumAdapter.cs" />
+    <Compile Include="GUI\ControlAdapters\ComboboxObjectAdapter.cs" />
+    <Compile Include="GUI\ControlAdapters\ListViewObjectAdapter.cs" />
+    <Compile Include="GUI\ControlAdapters\TextBoxAdapter.cs" />
+    <Compile Include="GUI\CustomControls\MultiControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="GUI\CustomControls\MultiControl.Designer.cs">
+      <DependentUpon>MultiControl.cs</DependentUpon>
+    </Compile>
+    <Compile Include="GUI\Dialogs\MessageDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="GUI\Dialogs\MessageDialog.Designer.cs">
+      <DependentUpon>MessageDialog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="GUI\Dialogs\ProgressDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="GUI\Dialogs\ProgressDialog.Designer.cs">
+      <DependentUpon>ProgressDialog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="GUI\GenericListSelectionControl\GenericListSelectionAdapter.cs" />
+    <Compile Include="GUI\GenericListSelectionControl\ListSelectionControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="GUI\GenericListSelectionControl\ListSelectionControl.Designer.cs">
+      <DependentUpon>ListSelectionControl.cs</DependentUpon>
+    </Compile>
+    <Compile Include="GUI\ExtendedForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="GUI\ExtendedForm.Designer.cs">
+      <DependentUpon>ExtendedForm.cs</DependentUpon>
+    </Compile>
+    <Compile Include="GUI\Util\TLPManager.cs" />
+    <Compile Include="JavaValidation.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TimerAction.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\CSharpUtilsNETStandard\CSharpUtilsNETStandard.csproj">
+      <Project>{d4e70cae-8f82-467f-807c-86a75da5b521}</Project>
+      <Name>CSharpUtilsNETStandard</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="GUI\CustomControls\MultiControl.resx">
+      <DependentUpon>MultiControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="GUI\Dialogs\MessageDialog.resx">
+      <DependentUpon>MessageDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="GUI\Dialogs\ProgressDialog.resx">
+      <DependentUpon>ProgressDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="GUI\GenericListSelectionControl\ListSelectionControl.resx">
+      <DependentUpon>ListSelectionControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="GUI\ExtendedForm.resx">
+      <DependentUpon>ExtendedForm.cs</DependentUpon>
+    </EmbeddedResource>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>
