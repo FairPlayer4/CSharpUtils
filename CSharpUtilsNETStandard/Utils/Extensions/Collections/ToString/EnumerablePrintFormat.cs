@@ -52,8 +52,16 @@ namespace CSharpUtilsNETStandard.Utils.Extensions.Collections.ToString
             NumLinesEachElement = numLinesEachElement;
         }
 
+        [NotNull]
         public static readonly EnumerablePrintFormat OnlyDelimiter = new EnumerablePrintFormat("", "");
 
+        [NotNull]
         public static readonly EnumerablePrintFormat ItemEveryLineNoSymbols = new EnumerablePrintFormat("", "", "", " = ", true);
+
+        [NotNull]
+        public static EnumerablePrintFormat GetOnlyDelimiter([NotNull] string delimiter)
+        {
+            return new EnumerablePrintFormat("", "", delimiter, "", false, 0);
+        }
     }
 }

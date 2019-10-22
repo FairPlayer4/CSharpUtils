@@ -28,7 +28,7 @@ namespace CSharpUtilsNETStandard.Utils.Extensions.Collections.ToString
         {
             return obj =>
             {
-                if (obj is T) return toStringMethod((T) obj);
+                if (obj is T value) return toStringMethod(value);
                 if (obj == null) return ToReadableStringExtension.NullString;
                 string returnMessage = "Invalid Type provided for the ToString() Method!\nGiven Type: " + obj.GetType().Name + " | Required Type: " + typeof(T).Name;
                 Logger.PrintWarning(returnMessage, typeof(CollectionPrinter).Name);

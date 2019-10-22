@@ -70,6 +70,7 @@ namespace CSharpUtilsNETFramework.GUI
 
         #region Size and Validity
 
+        [NotNull]
         private readonly Dictionary<TableLayoutPanel, TLPManager> _tlpStorages = new Dictionary<TableLayoutPanel, TLPManager>();
 
         protected void SetMinimumMaximumSize()
@@ -159,22 +160,23 @@ namespace CSharpUtilsNETFramework.GUI
         private void StoreTLP([NotNull] TableLayoutPanel tlp)
         {
             if (_tlpStorages.ContainsKey(tlp)) return;
-            _tlpStorages.Add(tlp, new TLPManager(tlp));
+            TLPManager tlpManager = TLPManager.CreateTLPManager(tlp);
+            if (tlpManager != null) _tlpStorages.Add(tlp, tlpManager);
         }
 
-        protected void SetRowVisibility(TableLayoutPanel tlp, bool visible, int row, [NotNull] params int[] rows)
+        protected void SetRowVisibility([NotNull] TableLayoutPanel tlp, bool visible, int row, [NotNull] params int[] rows)
         {
             List<int> rowList = new List<int>(rows) { row };
             SetRowColumnVisibility(tlp, rowList, null, visible);
         }
 
-        protected void SetColumnVisibility(TableLayoutPanel tlp, bool visible, int column, [NotNull] params int[] columns)
+        protected void SetColumnVisibility([NotNull] TableLayoutPanel tlp, bool visible, int column, [NotNull] params int[] columns)
         {
             List<int> columnList = new List<int>(columns) { column };
             SetRowColumnVisibility(tlp, null, columnList, visible);
         }
 
-        private void SetRowColumnVisibility(TableLayoutPanel tlp, List<int> rowList, List<int> columnList, bool visible)
+        private void SetRowColumnVisibility([NotNull] TableLayoutPanel tlp, [CanBeNull] List<int> rowList, [CanBeNull] List<int> columnList, bool visible)
         {
             try
             {
@@ -202,11 +204,11 @@ namespace CSharpUtilsNETFramework.GUI
                 StoreTLP(tlp);
                 TLPManager tlpStore = _tlpStorages[tlp].Update();
                 if (tlpStore == null) return;
-                Tuple<int, int> sizeChange = GetSizeChange(tlp, tlpStore, rowList, columnList, visible);
-                if (sizeChange == null) return;
+                var sizeChange = GetSizeChange(tlp, tlpStore, rowList, columnList, visible);
+                if (!sizeChange.HasValue) return;
                 Logger.PrintGarbage("SetRowColumnVisibility Size Change was successfully obtained.");
-                int heightChange = sizeChange.Item1;
-                int widthChange = sizeChange.Item2;
+                int heightChange = sizeChange.Value.Item1;
+                int widthChange = sizeChange.Value.Item2;
                 ApplyVisibilityAndSizeChange(tlp, tlpStore, rowList, columnList, rowStyleList, columnStyleList, controlList, heightChange, widthChange, visible);
                 SetMinimumMaximumSize();
                 watch.Stop();
@@ -223,7 +225,7 @@ namespace CSharpUtilsNETFramework.GUI
         #region SetRowColumnVisibility Helper Methods
 
         //Modifies the two lists
-        private bool PassedTLPChecks(TableLayoutPanel tlp, [CanBeNull] List<int> rowList, [CanBeNull] List<int> columnList, bool visible)
+        private bool PassedTLPChecks([NotNull] TableLayoutPanel tlp, [CanBeNull] List<int> rowList, [CanBeNull] List<int> columnList, bool visible)
         {
             // Checking Parameters
             if (rowList == null || columnList == null || !TLPManager.PassedChecks(tlp, rowList.ToArray(), columnList.ToArray()) || tlp.FindForm() != this || Controls.Count != 1) return false;
@@ -284,7 +286,7 @@ namespace CSharpUtilsNETFramework.GUI
         /// <param name="visible"></param>
         /// <returns></returns>
         [CanBeNull]
-        private static Tuple<int, int> GetSizeChange(TableLayoutPanel tlp, [NotNull] TLPManager tlpStore, List<int> rowList, List<int> columnList, bool visible)
+        private static (int, int)? GetSizeChange([NotNull] TableLayoutPanel tlp, [NotNull] TLPManager tlpStore, [NotNull] List<int> rowList, [NotNull] List<int> columnList, bool visible)
         {
             if (!tlpStore.IsReady) return visible ? null : GetSizeChangeManually(tlp, tlpStore, rowList, columnList);
             int heightChange = 0;
@@ -311,13 +313,13 @@ namespace CSharpUtilsNETFramework.GUI
                 heightChange += tlp.GetRowHeights().Where((row, index) => rowList.Contains(index)).Sum();
                 widthChange += tlp.GetColumnWidths().Where((column, index) => columnList.Contains(index)).Sum();
             }
-            return new Tuple<int, int>(heightChange, widthChange);
+            return (heightChange, widthChange);
         }
 
         #region TLP Manual Calculation of Row Heights and Column Widths
 
         [CanBeNull]
-        private static Tuple<int, int> GetSizeChangeManually(TableLayoutPanel tlp, TLPManager tlpStore, [NotNull] List<int> rowList, [NotNull] List<int> columnList)
+        private static (int, int)? GetSizeChangeManually([NotNull] TableLayoutPanel tlp, [NotNull] TLPManager tlpStore, [NotNull] List<int> rowList, [NotNull] List<int> columnList)
         {
             Logger.PrintTrace("SetRowColumnVisibility is applied before the TableLayoutPanel is ready.");
             int heightChange = 0;
@@ -450,12 +452,12 @@ namespace CSharpUtilsNETFramework.GUI
                 Logger.PrintTrace("The size change of the TableLayoutPanel could not be determined.\nThis can occur in more complex layouts when the window is initially loaded.");
                 return null;
             }
-            return new Tuple<int, int>(heightChange, widthChange);
+            return (heightChange, widthChange);
         }
 
         #endregion
 
-        private void ApplyVisibilityAndSizeChange([NotNull] TableLayoutPanel tlp, TLPManager tlpStore, List<int> rowList, List<int> columnList, [NotNull] List<RowStyle> rowStyleList, [NotNull] List<ColumnStyle> columnStyleList, List<Control> controlList, int heightChange, int widthChange, bool visible)
+        private void ApplyVisibilityAndSizeChange([NotNull] TableLayoutPanel tlp, [NotNull] TLPManager tlpStore, [NotNull] List<int> rowList, [NotNull] List<int> columnList, [NotNull] List<RowStyle> rowStyleList, [NotNull] List<ColumnStyle> columnStyleList, [NotNull] List<Control> controlList, int heightChange, int widthChange, bool visible)
         {
             this.SuspendDrawing();
             List<Tuple<Control, DockStyle>> list = UndockAdjustSpanningControls(tlp, tlpStore, rowList, columnList, visible);
@@ -490,7 +492,7 @@ namespace CSharpUtilsNETFramework.GUI
         }
 
         [CanBeNull]
-        private static List<Tuple<Control, DockStyle>> UndockAdjustSpanningControls(TableLayoutPanel tlp, TLPManager tlpStore, List<int> rowList, List<int> columnList, bool visible)
+        private static List<Tuple<Control, DockStyle>> UndockAdjustSpanningControls([NotNull] TableLayoutPanel tlp, [NotNull] TLPManager tlpStore, [NotNull] List<int> rowList, [NotNull] List<int> columnList, bool visible)
         {
             if (visible) return null;
             List<Tuple<Control, DockStyle>> list = new List<Tuple<Control, DockStyle>>();

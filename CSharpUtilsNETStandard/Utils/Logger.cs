@@ -65,7 +65,7 @@ namespace CSharpUtilsNETStandard.Utils
             PrintLogLevel(LogLevel.GARBAGE, msg, category, exception);
         }
 
-        public static void PrintLogLevel(LogLevel logLevel, [NotNull]string msg, [NotNull]string category, [CanBeNull]Exception exception)
+        public static void PrintLogLevel(LogLevel logLevel, [NotNull]string msg, [NotNull]string category, [CanBeNull]Exception exception = null)
         {
             if (exception != null && PrintLogException != null) PrintLogException(logLevel, msg, exception, category);
             else if (PrintLog != null) PrintLog(logLevel, msg, category);

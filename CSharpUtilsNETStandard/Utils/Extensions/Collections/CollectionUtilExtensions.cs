@@ -216,7 +216,7 @@ namespace CSharpUtilsNETStandard.Utils.Extensions.Collections
             return Array.ConvertAll(array, converter);
         }
 
-        public static void AddRangeOverride<TKey, TValue>([NotNull] this IDictionary<TKey, TValue> dictionary, [NotNull] IReadOnlyDictionary<TKey, TValue> otherDictionary)
+        public static void AddRangeOverwrite<TKey, TValue>([NotNull] this IDictionary<TKey, TValue> dictionary, [NotNull] IReadOnlyDictionary<TKey, TValue> otherDictionary)
         {
             foreach (var keyValuePair in otherDictionary) dictionary[keyValuePair.Key] = keyValuePair.Value;
         }
@@ -272,7 +272,7 @@ namespace CSharpUtilsNETStandard.Utils.Extensions.Collections
                 foreach (DictionaryEntry entry in dictionary)
                 {
                     if (entry.IsNullOrWhiteSpace()) keysToRemoveList.Add(entry.Key);
-                    else if (entry.Value is ICollection) anyNullValues |= ((ICollection)entry.Value).RemoveNullOrWhiteSpaceKeysAndValues();
+                    else if (entry.Value is ICollection value) anyNullValues |= value.RemoveNullOrWhiteSpaceKeysAndValues();
                 }
                 if (keysToRemoveList.Count == 0) return anyNullValues;
                 // ReSharper disable once AssignNullToNotNullAttribute
@@ -286,7 +286,7 @@ namespace CSharpUtilsNETStandard.Utils.Extensions.Collections
                 foreach (object o in list)
                 {
                     if (o == null || o is string && string.IsNullOrWhiteSpace(o.ToString())) numberOfNullEntries++;
-                    else if (o is ICollection) anyNullValues |= ((ICollection)o).RemoveNullOrWhiteSpaceKeysAndValues();
+                    else if (o is ICollection castCollection) anyNullValues |= castCollection.RemoveNullOrWhiteSpaceKeysAndValues();
                 }
 
                 if (numberOfNullEntries == 0) return anyNullValues;
@@ -423,23 +423,31 @@ namespace CSharpUtilsNETStandard.Utils.Extensions.Collections
         /// <param name="dictionary"></param>
         /// <param name="key"></param>
         /// <param name="defaultValue"></param>
-        /// <param name="printWarning"></param>
+        /// <param name="failureLogLevel"></param>
         /// <returns></returns>
         [ContractAnnotation("defaultValue:null => canbenull; defaultValue:notnull => notnull")] //This will only hold if the dictionary does not contain null values
-        public static TValue GetValueOrDefault<TKey, TValue>([NotNull] this IReadOnlyDictionary<TKey, TValue> dictionary, [CanBeNull]TKey key, [CanBeNull]TValue defaultValue = default, bool printWarning = true)
+        public static TValue GetValueOrDefault<TKey, TValue>([NotNull] this IReadOnlyDictionary<TKey, TValue> dictionary, [NotNull] TKey key, [CanBeNull]TValue defaultValue = default, [CanBeNull] LogLevel? failureLogLevel = null)
         {
-            if (key == null) return defaultValue;
             if (dictionary.TryGetValue(key, out TValue value)) return value;
-            if (printWarning) Logger.PrintWarning(string.Format("The key {0} was not found in a Dictionary of <{1}, {2}>! This warning message is for debugging purposes and could be normal behaviour.", key.ToString(), typeof(TKey).Name, typeof(TValue).Name), typeof(CollectionUtilExtensions).Name);
+            PrintLogOnFailure<TKey, TValue>(key, failureLogLevel);
             return defaultValue;
         }
 
-        [CanBeNull]
-        public static string GetValueOrEmpty<TKey>([NotNull] this IReadOnlyDictionary<TKey, string> dictionary, [NotNull]TKey key, string defaultValue = "", bool printWarning = true)
+        [NotNull]
+        public static string GetValueOrEmpty<TKey>([NotNull] this IReadOnlyDictionary<TKey, string> dictionary, [NotNull] TKey key, [NotNull] string defaultValue = "", [CanBeNull] LogLevel? failureLogLevel = null)
         {
-            if (dictionary.TryGetValue(key, out string value)) return value;
-            if (printWarning) Logger.PrintWarning(string.Format("The key {0} was not found in a Dictionary of <{1}, string>! This warning message is for debugging purposes and could be normal behaviour.", key.ToString(), typeof(TKey).Name), typeof(CollectionUtilExtensions).Name);
-            return defaultValue;
+            return GetValueOrDefault(dictionary, key, defaultValue, failureLogLevel);
+        }
+
+        [CanBeNull]
+        public static TValue GetValueOrNull<TKey, TValue>([NotNull] this IReadOnlyDictionary<TKey, TValue> dictionary, [NotNull]TKey key, [CanBeNull] LogLevel? failureLogLevel = null) where TValue : class
+        {
+            return GetValueOrDefault(dictionary, key, null, failureLogLevel);
+        }
+
+        private static void PrintLogOnFailure<TKey, TValue>([NotNull] TKey key, [CanBeNull] LogLevel? failureLogLevel)
+        {
+            if (failureLogLevel.HasValue) Logger.PrintLogLevel(failureLogLevel.Value, string.Format("The key {0} was not found in a Dictionary of <{1}, {2}>! This warning message is for debugging purposes and could be normal behaviour.", key.ToString(), typeof(TKey).Name, typeof(TValue).Name), typeof(CollectionUtilExtensions).Name);
         }
 
         public static void ForEachValue<TKey, TValue>([NotNull]this IReadOnlyDictionary<TKey, TValue> dictionary, [NotNull]Action<TValue> action)

@@ -335,7 +335,7 @@ namespace CSharpUtilsNETFramework.GUI.ControlAdapters
     {
         private const char Zero = '0';
         private const char Negation = '-';
-        public Range AllowedRange { get; set; }
+        public IntRange AllowedRange { get; set; }
         public Func<int, bool> IsValueValidFunction { get; set; }
 
         public bool IsValueValid(int value) => AllowedRange.IsInRange(value) && (IsValueValidFunction == null || IsValueValidFunction(value));
@@ -352,18 +352,18 @@ namespace CSharpUtilsNETFramework.GUI.ControlAdapters
             }
         }
 
-        public IntegerTextBoxAdapter([NotNull] TextBox textBox, Range range) : base(textBox)
+        public IntegerTextBoxAdapter([NotNull] TextBox textBox, IntRange range) : base(textBox)
         {
             AllowedRange = range;
-            if (!AllowedRange.IsValid) AllowedRange = Range.MaxRange; //TODO probably warning
+            if (!AllowedRange.IsValid) AllowedRange = IntRange.MaxRange; //TODO probably warning
             if (AllowedRange.OnlyNegative) CurrentString = Negation.ToString();
         }
 
-        public IntegerTextBoxAdapter([NotNull] TextBox textBox, Range range, int? defaultValue, bool hideShowDefaultValue) : base(textBox, defaultValue.ToString(), hideShowDefaultValue)
+        public IntegerTextBoxAdapter([NotNull] TextBox textBox, IntRange range, int? defaultValue, bool hideShowDefaultValue) : base(textBox, defaultValue.ToString(), hideShowDefaultValue)
         {
             if (defaultValue.HasValue) DefaultValue = defaultValue.Value;
             AllowedRange = range;
-            if (!AllowedRange.IsValid) AllowedRange = Range.MaxRange; //TODO probably warning
+            if (!AllowedRange.IsValid) AllowedRange = IntRange.MaxRange; //TODO probably warning
             if (AllowedRange.OnlyNegative) CurrentString = Negation.ToString();
         }
 
@@ -460,32 +460,5 @@ namespace CSharpUtilsNETFramework.GUI.ControlAdapters
             if (AllowedRange.OnlyNegative && !CurrentString.StartsWithOrdinal(Negation.ToString())) CurrentString = Negation + CurrentString;
         }
 
-    }
-
-    public struct Range
-    {
-        public readonly int MinimumNumber;
-        public readonly int MaximumNumber;
-
-        public static readonly Range MaxRange = new Range(int.MinValue, int.MaxValue);
-        public static readonly Range PositiveRange = new Range(0, int.MaxValue);
-        public static readonly Range NegativeRange = new Range(int.MinValue, -1);
-
-        public Range(int minimumNumber, int maximumNumber)
-        {
-            MinimumNumber = minimumNumber;
-            MaximumNumber = maximumNumber;
-        }
-
-        public bool IsValid => MinimumNumber <= MaximumNumber;
-
-        public bool OnlyNegative => MaximumNumber < 0;
-
-        public bool OnlyPositive => MinimumNumber >= 0;
-
-        [Pure]
-        public bool IsInRange(int number) => number >= MinimumNumber && number <= MaximumNumber;
-
-        public override string ToString() => string.Format("Range [{0}, {1}]", MinimumNumber, MaximumNumber);
     }
 }

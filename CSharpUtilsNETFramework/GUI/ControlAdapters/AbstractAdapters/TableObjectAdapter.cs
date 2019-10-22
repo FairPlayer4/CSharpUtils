@@ -21,7 +21,7 @@ namespace CSharpUtilsNETFramework.GUI.ControlAdapters.AbstractAdapters
         [NotNull, ItemNotNull]
         public IEnumerable<TObject> SelectedValues
         {
-            get { return SelectedIndexes.Select(GetValue); }
+            get => SelectedIndexes.Select(GetValue);
             set {
                 ClearSelection();
                 SetValuesSelected(value, true);

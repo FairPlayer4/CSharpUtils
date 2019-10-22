@@ -13,14 +13,19 @@ namespace CSharpUtilsNETFramework.GUI.Util
 {
     public sealed class TLPManager
     {
+        [NotNull]
         private readonly TableLayoutPanel _tlp;
+        [NotNull, ItemNotNull]
         private readonly List<RowStyle> _visibleRowStyles = new List<RowStyle>();
+        [NotNull, ItemNotNull]
         private readonly List<ColumnStyle> _visibleColumnStyles = new List<ColumnStyle>();
+        [NotNull]
         private readonly List<int> _initialRowPixelHeights = new List<int>();
+        [NotNull]
         private readonly List<int> _initialColumnPixelWidths = new List<int>();
 
-        [NotNull] public IReadOnlyList<RowStyle> VisibleRowStyles => _visibleRowStyles.AsReadOnly();
-        [NotNull] public IReadOnlyList<ColumnStyle> VisibleColumnStyles => _visibleColumnStyles.AsReadOnly();
+        [NotNull, ItemNotNull] public IReadOnlyList<RowStyle> VisibleRowStyles => _visibleRowStyles.AsReadOnly();
+        [NotNull, ItemNotNull] public IReadOnlyList<ColumnStyle> VisibleColumnStyles => _visibleColumnStyles.AsReadOnly();
 
         [NotNull] public IReadOnlyList<int> InitialRowPixelHeights => _initialRowPixelHeights.AsReadOnly();
         [NotNull] public IReadOnlyList<int> InitialColumnPixelWidths => _initialColumnPixelWidths.AsReadOnly();
@@ -32,9 +37,14 @@ namespace CSharpUtilsNETFramework.GUI.Util
 
         public bool IsReady => IsTLPReady(_tlp);
 
-        public TLPManager(TableLayoutPanel tlp)
+        [CanBeNull]
+        public static TLPManager CreateTLPManager([NotNull] TableLayoutPanel tlp)
         {
-            if (!PassedChecks(tlp)) return;
+            return !PassedChecks(tlp) ? null : new TLPManager(tlp);
+        }
+
+        private TLPManager([NotNull] TableLayoutPanel tlp)
+        {
             _tlp = tlp;
             foreach (RowStyle rowStyle in tlp.RowStyles.Cast<RowStyle>())
             {
@@ -109,19 +119,19 @@ namespace CSharpUtilsNETFramework.GUI.Util
             return this;
         }
 
-        public static bool IsTLPReady(TableLayoutPanel tlp) => PassedChecks(tlp) && tlp.GetRowHeights().Length == tlp.RowCount && tlp.GetColumnWidths().Length == tlp.ColumnCount && tlp.GetRowHeights().Sum() == tlp.Height && tlp.GetColumnWidths().Sum() == tlp.Width;
+        public static bool IsTLPReady([NotNull] TableLayoutPanel tlp) => PassedChecks(tlp) && tlp.GetRowHeights().Length == tlp.RowCount && tlp.GetColumnWidths().Length == tlp.ColumnCount && tlp.GetRowHeights().Sum() == tlp.Height && tlp.GetColumnWidths().Sum() == tlp.Width;
 
-        public static bool IsRowVisible(TableLayoutPanel tlp, int row)
+        public static bool IsRowVisible([NotNull] TableLayoutPanel tlp, int row)
         {
             return PassedChecks(tlp, new[] { row }) && tlp.RowStyles[row].SizeType == SizeType.Percent;
         }
 
-        public static bool IsColumnVisible(TableLayoutPanel tlp, int column)
+        public static bool IsColumnVisible([NotNull] TableLayoutPanel tlp, int column)
         {
             return PassedChecks(tlp, columns: new[] { column }) && tlp.ColumnStyles[column].SizeType == SizeType.Percent;
         }
 
-        public static bool IsTLPHeightResizable(TableLayoutPanel tlp)
+        public static bool IsTLPHeightResizable([NotNull] TableLayoutPanel tlp)
         {
             if (!ContainsPercentRows(tlp)) return false; // Contains Checks
             foreach (RowStyle rowStyle in tlp.RowStyles.Cast<RowStyle>().Where(rowStyle => rowStyle.SizeType == SizeType.Percent))
@@ -138,7 +148,7 @@ namespace CSharpUtilsNETFramework.GUI.Util
             return false;
         }
 
-        public static bool IsTLPWidthResizable(TableLayoutPanel tlp)
+        public static bool IsTLPWidthResizable([NotNull] TableLayoutPanel tlp)
         {
             if (!ContainsPercentColumns(tlp)) return false; // Contains Checks
             foreach (ColumnStyle columnStyle in tlp.ColumnStyles.Cast<ColumnStyle>().Where(columnStyle => columnStyle.SizeType == SizeType.Percent))
@@ -156,7 +166,7 @@ namespace CSharpUtilsNETFramework.GUI.Util
         }
 
         [CanBeNull]
-        private static TableLayoutPanel GetNextTLPInCell(TableLayoutPanel tlp, int row, int column)
+        private static TableLayoutPanel GetNextTLPInCell([NotNull] TableLayoutPanel tlp, int row, int column)
         {
             if (!PassedChecks(tlp, new[] { row }, new[] { column })) return null;
             Control control = tlp.GetControlFromPosition(column, row);
@@ -165,12 +175,12 @@ namespace CSharpUtilsNETFramework.GUI.Util
             return control as TableLayoutPanel;
         }
 
-        public static bool ContainsPercentRows(TableLayoutPanel tlp)
+        public static bool ContainsPercentRows([NotNull] TableLayoutPanel tlp)
         {
             return PassedChecks(tlp) && tlp.RowStyles.Cast<RowStyle>().Count(rowStyle => rowStyle.SizeType == SizeType.Percent) > 0;
         }
 
-        public static bool ContainsSingleEmptyPercentRow(TableLayoutPanel tlp)
+        public static bool ContainsSingleEmptyPercentRow([NotNull] TableLayoutPanel tlp)
         {
             if (!PassedChecks(tlp)) return false;
             if (tlp.RowStyles.Cast<RowStyle>().Count(rowStyle => rowStyle.SizeType == SizeType.Percent) != 1) return false;
@@ -182,17 +192,17 @@ namespace CSharpUtilsNETFramework.GUI.Util
             return false;
         }
 
-        public static bool TLPRowContainsControl(TableLayoutPanel tlp, int row)
+        public static bool TLPRowContainsControl([NotNull] TableLayoutPanel tlp, int row)
         {
             return PassedChecks(tlp, new[] { row }) && TLPRowContainsControlNoChecks(tlp, row);
         }
 
-        public static bool ContainsPercentColumns(TableLayoutPanel tlp)
+        public static bool ContainsPercentColumns([NotNull] TableLayoutPanel tlp)
         {
             return PassedChecks(tlp) && tlp.ColumnStyles.Cast<ColumnStyle>().Count(columnStyle => columnStyle.SizeType == SizeType.Percent) > 0;
         }
 
-        public static bool ContainsSingleEmptyPercentColumn(TableLayoutPanel tlp)
+        public static bool ContainsSingleEmptyPercentColumn([NotNull] TableLayoutPanel tlp)
         {
             if (!PassedChecks(tlp)) return false;
             if (tlp.ColumnStyles.Cast<ColumnStyle>().Count(columnStyle => columnStyle.SizeType == SizeType.Percent) != 1) return false;
@@ -204,7 +214,7 @@ namespace CSharpUtilsNETFramework.GUI.Util
             return false;
         }
 
-        public static bool TLPColumnContainsControl(TableLayoutPanel tlp, int column)
+        public static bool TLPColumnContainsControl([NotNull] TableLayoutPanel tlp, int column)
         {
             return PassedChecks(tlp, columns: new[] { column }) && TLPColumnContainsControlNoChecks(tlp, column);
         }
@@ -249,12 +259,12 @@ namespace CSharpUtilsNETFramework.GUI.Util
             return result;
         }
 
-        public static bool PassedChecks([CanBeNull] TableLayoutPanel tlp, [CanBeNull] int[] rows = null, [CanBeNull] int[] columns = null)
+        public static bool PassedChecks([NotNull] TableLayoutPanel tlp, [CanBeNull] int[] rows = null, [CanBeNull] int[] columns = null)
         {
             try
             {
                 // Fast Route if everything is fine.
-                if (tlp != null && tlp.RowStyles.Count == tlp.RowCount && tlp.ColumnStyles.Count == tlp.ColumnCount &&
+                if (tlp.RowStyles.Count == tlp.RowCount && tlp.ColumnStyles.Count == tlp.ColumnCount &&
                 tlp.RowStyles.Cast<RowStyle>().All(rowStyle => rowStyle.SizeType != SizeType.Absolute) &&
                 tlp.ColumnStyles.Cast<ColumnStyle>().All(columnStyle => columnStyle.SizeType != SizeType.Absolute) &&
                 (rows == null || rows.All(row => row > 0 && row < tlp.RowCount)) &&

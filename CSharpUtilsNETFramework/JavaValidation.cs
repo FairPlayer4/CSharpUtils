@@ -85,11 +85,8 @@ namespace CSharpUtilsNETFramework
                         Logger.PrintTrace(JavaVersionCommandMessage + " worked but did not produce any output!", LogCategory);
                         return "";
                     }
-                    else
-                    {
-                        Logger.PrintTrace(JavaVersionCommandMessage + " worked but produced output on the wrong output stream! Using the output anyway for robustness in case of changes in the way Java outputs its version.", LogCategory);
-                        readVersion = readVersionFromStandardOutput;
-                    }
+                    Logger.PrintTrace(JavaVersionCommandMessage + " worked but produced output on the wrong output stream! Using the output anyway for robustness in case of changes in the way Java outputs its version.", LogCategory);
+                    readVersion = readVersionFromStandardOutput;
                 }
                 Logger.PrintTrace(JavaVersionCommandMessage + " produced the following output:\n" + readVersion, LogCategory);
                 return _javaVersionString = readVersion.FindInBetweenTwoStrings("\"", "\"").Trim();

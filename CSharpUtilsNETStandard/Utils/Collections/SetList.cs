@@ -263,7 +263,7 @@ namespace CSharpUtilsNETStandard.Utils.Collections
         void IList.Remove(object value)
         {
             ((IList)list).Remove(value);
-            if (value is T) set.Remove((T)value);
+            if (value is T tValue) set.Remove(tValue);
         }
 
         #endregion

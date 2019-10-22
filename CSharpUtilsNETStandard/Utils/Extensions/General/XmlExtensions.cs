@@ -133,7 +133,7 @@ namespace CSharpUtilsNETStandard.Utils.Extensions.General
                 xElement.Attributes().Select(x => x != null ? string.Format("(Name: {0}, Value: {1})", x.Name, x.Value) : "(NULL)").ToReadableString(),
                 xElement.Elements().Select(x => string.Format("(Name: {0}, Value: {1})", x.Name, x.Value)).ToReadableString(),
                 defaultValue);
-            Logger.PrintLogLevel(failureLogLevel, message, Category, null);
+            Logger.PrintLogLevel(failureLogLevel, message, Category);
         }
     }
 }

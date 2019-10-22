@@ -52,7 +52,6 @@
     <Compile Include="FileUtils.cs" />
     <Compile Include="GUI\ControlAdapters\AbstractAdapters\ControlObjectAdapter.cs" />
     <Compile Include="GUI\ControlAdapters\AbstractAdapters\TableObjectAdapter.cs" />
-    <Compile Include="GUI\ControlAdapters\ComboboxEnumAdapter.cs" />
     <Compile Include="GUI\ControlAdapters\ComboboxObjectAdapter.cs" />
     <Compile Include="GUI\ControlAdapters\ListViewObjectAdapter.cs" />
     <Compile Include="GUI\ControlAdapters\TextBoxAdapter.cs" />

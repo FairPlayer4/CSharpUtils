@@ -26,21 +26,21 @@ namespace CSharpUtilsNETStandard.Utils.Extensions.General
         public static T UnboxOrDefault<T>([CanBeNull] this object o, T defaultValue = default) where T : struct, IConvertible
         {
             if (o == null) return defaultValue;
-            if (o is T) return (T)o;
+            if (o is T convertible) return convertible;
             return o.ToString().ConvertOrDefault(defaultValue); //Last effort
         }
 
         [NotNull]
         public static T CastOrDefault<T>([CanBeNull] this object o, [NotNull] T defaultValue)
         {
-            if (o is T) return (T)o;
+            if (o is T o1) return o1;
             return defaultValue;
         }
 
         [CanBeNull]
         public static T CastOrDefaultAllowNull<T>([CanBeNull] this object o, [CanBeNull] T defaultValue)
         {
-            if (o is T) return (T)o;
+            if (o is T o1) return o1;
             return defaultValue;
         }
 
@@ -73,7 +73,7 @@ namespace CSharpUtilsNETStandard.Utils.Extensions.General
             return null;
         }
         [NotNull]
-        private delegate Tuple<object, bool> ConvertOrDefaultFunc([NotNull]string value, [NotNull]object defaultValue);
+        private delegate (object, bool) ConvertOrDefaultFunc([NotNull]string value, [NotNull]object defaultValue);
 
         private static readonly IReadOnlyDictionary<Type, ConvertOrDefaultFunc> DefaultStringToEnumConverters = new Dictionary<Type, ConvertOrDefaultFunc>();
 
@@ -98,15 +98,31 @@ namespace CSharpUtilsNETStandard.Utils.Extensions.General
         public static double ConvertToDouble([CanBeNull] this string value, double defaultValue, NumberStyles numberStyles = NumberStyles.Any, [CanBeNull] IFormatProvider formatProvider = null, LogLevel failureLogLevel = LogLevel.WARNING)
         {
             if (double.TryParse(value, numberStyles, formatProvider ?? CultureInfo.InvariantCulture, out double result)) return result;
-            Logger.PrintLogLevel(failureLogLevel, $"The conversion of the string \"{value}\" to double failed.\nThe default value {defaultValue} will be returned.", Category, null);
+            Logger.PrintLogLevel(failureLogLevel, $"The conversion of the string \"{value}\" to double failed.\nThe default value {defaultValue} will be returned.", Category);
             return defaultValue;
         }
 
         [NotNull]
-        public static T ConvertOrDefault<T>([CanBeNull] this string value, [NotNull] T defaultValue, [CanBeNull] IFormatProvider formatProvider = null, LogLevel failureLogLevel = LogLevel.WARNING)
+        public static T ConvertOrDefault<T>([CanBeNull] this string value, [NotNull] T defaultValue, [CanBeNull] IFormatProvider formatProvider = null, LogLevel? failureLogLevel = LogLevel.WARNING)
             where T : IConvertible
         {
             return ConvertOrDefault(value, defaultValue, out bool _, formatProvider, failureLogLevel);
+        }
+
+        [NotNull]
+        public static T ConvertOrDefaultNoLogging<T>([CanBeNull] this string value, [NotNull] T defaultValue, [CanBeNull] IFormatProvider formatProvider = null)
+            where T : IConvertible
+        {
+            return ConvertOrDefault(value, defaultValue, formatProvider, null);
+        }
+
+        [CanBeNull]
+        public static T? ConvertOrNull<T>([CanBeNull] this string value, [CanBeNull] IFormatProvider formatProvider = null, LogLevel? failureLogLevel = null)
+            where T : struct, IConvertible
+        {
+            T conversionValue = ConvertOrDefault(value, default(T), out bool success, formatProvider, failureLogLevel);
+            if (!success) return null;
+            return conversionValue;
         }
 
         /// <summary>
@@ -130,7 +146,7 @@ namespace CSharpUtilsNETStandard.Utils.Extensions.General
         /// <param name="failureLogLevel">Prints a message with the specified LogLevel if the conversion fails except if the string value is null. (default: LogLevel.WARNING)</param>
         /// <returns></returns>
         [NotNull]
-        public static T ConvertOrDefault<T>([CanBeNull] this string value, [NotNull] T defaultValue, out bool success, [CanBeNull] IFormatProvider formatProvider = null, LogLevel failureLogLevel = LogLevel.WARNING)
+        public static T ConvertOrDefault<T>([CanBeNull] this string value, [NotNull] T defaultValue, out bool success, [CanBeNull] IFormatProvider formatProvider = null, LogLevel? failureLogLevel = LogLevel.WARNING)
             where T : IConvertible
         {
             try
@@ -142,9 +158,9 @@ namespace CSharpUtilsNETStandard.Utils.Extensions.General
                     if (value == null) value = "";
                     if (DefaultStringToEnumConverters.TryGetValue(returnType, out ConvertOrDefaultFunc converter))
                     {
-                        var result = converter(value, defaultValue);
-                        success = result.Item2;
-                        if (success) return (T)result.Item1;
+                        (object item1, bool item2) = converter(value, defaultValue);
+                        success = item2;
+                        if (success) return (T)item1;
                         Logger.PrintWarning($"Could not convert the string value \"{value}\" into a valid {returnType.Name}.\nUsing the default value: {defaultValue}");
                         return defaultValue;
                     }
@@ -187,11 +203,14 @@ namespace CSharpUtilsNETStandard.Utils.Extensions.General
         }
 
         [NotNull]
-        private static T PrintConversionFailureMessageAndReturnDefault<T>([CanBeNull] string value, [CanBeNull] Exception exception, [NotNull] T defaultValue, LogLevel failureLogLevel)
+        private static T PrintConversionFailureMessageAndReturnDefault<T>([CanBeNull] string value, [CanBeNull] Exception exception, [NotNull] T defaultValue, LogLevel? failureLogLevel)
             where T : IConvertible
         {
-            string message = GetMessage(value, defaultValue, exception == null);
-            Logger.PrintLogLevel(failureLogLevel, message, Category, exception);
+            if (failureLogLevel.HasValue)
+            {
+                string message = GetMessage(value, defaultValue, exception == null);
+                Logger.PrintLogLevel(failureLogLevel.Value, message, Category, exception);
+            }
             return defaultValue;
         }
 

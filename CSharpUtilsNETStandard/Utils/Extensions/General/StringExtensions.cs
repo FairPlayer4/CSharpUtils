@@ -74,17 +74,17 @@ namespace CSharpUtilsNETStandard.Utils.Extensions.General
         }
 
         [NotNull]
-        public static string FindInBetweenTwoStrings([NotNull] this string fullString, [NotNull] Tuple<string, string> startAndEndString, StringComparison comparison = StringComparison.InvariantCulture, bool returnEmptyIfOneOfTheStringsIsNotFound = true)
+        public static string FindInBetweenTwoStrings([NotNull] this string fullString, (string, string) startAndEndString, StringComparison comparison = StringComparison.InvariantCulture, bool returnEmptyIfOneOfTheStringsIsNotFound = true)
         {
             return FindInBetweenTwoStrings(fullString, startAndEndString.Item1, startAndEndString.Item2, comparison);
         }
         [CanBeNull]
-        public static Tuple<string, string> StartsWithAndEndWithAny([NotNull]this string value, [NotNull]params Tuple<string, string>[] startsWithAndEndWithTuples)
+        public static (string, string)? StartsWithAndEndWithAny([NotNull]this string value, [NotNull]params (string, string)?[] startsWithAndEndWithTuples)
         {
-            return startsWithAndEndWithTuples.FirstOrDefault(value.StartsAndEndsWith);
+            return startsWithAndEndWithTuples.FirstOrDefault(tuple => tuple.HasValue && value.StartsAndEndsWith(tuple.Value));
         }
 
-        public static bool StartsAndEndsWith([NotNull]this string value, [NotNull]Tuple<string, string> startAndEnd)
+        public static bool StartsAndEndsWith([NotNull]this string value, (string, string) startAndEnd)
         {
             return value.StartsWithOrdinal(startAndEnd.Item1) && value.EndsWithOrdinal(startAndEnd.Item2);
         }
