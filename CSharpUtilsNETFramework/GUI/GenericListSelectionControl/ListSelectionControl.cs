@@ -15,6 +15,7 @@ using JetBrains.Annotations;
 
 namespace CSharpUtilsNETFramework.GUI.GenericListSelectionControl
 {
+    [PublicAPI]
     public enum ListViewEventReaction
     {
         ReactToAllEvents = 0,
@@ -29,6 +30,7 @@ namespace CSharpUtilsNETFramework.GUI.GenericListSelectionControl
     /// Do not use any properties or methods manually.
     /// Use the GenericListSelectionAdapter.
     /// </summary>
+    [PublicAPI]
     public sealed partial class ListSelectionControl : UserControl
     {
 

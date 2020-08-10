@@ -14,9 +14,10 @@ using JetBrains.Annotations;
 
 namespace CSharpUtilsNETFramework.GUI.ControlAdapters
 {
-
+    [PublicAPI]
     public abstract class TextBoxAdapter<T> : IDisposable
     {
+        [PublicAPI]
         public sealed class ExtendedKeyPressEventArgs
         {
             public readonly TextBoxAdapter<T> Sender;
@@ -331,6 +332,7 @@ namespace CSharpUtilsNETFramework.GUI.ControlAdapters
         }
     }
 
+    [PublicAPI]
     public sealed class IntegerTextBoxAdapter : TextBoxAdapter<int>
     {
         private const char Zero = '0';

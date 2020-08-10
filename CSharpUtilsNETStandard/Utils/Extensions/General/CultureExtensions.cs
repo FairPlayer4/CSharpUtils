@@ -8,14 +8,14 @@ using JetBrains.Annotations;
 
 namespace CSharpUtilsNETStandard.Utils.Extensions.General
 {
-
+    [PublicAPI]
     public class DoubleNumberFormat
     {
         [NotNull]
         public CultureInfo CultureInfo { get; set; } = CultureInfo.InvariantCulture;
         public int PrecisionDigits { get; set; } = 15;
         public bool TrimZeros { get; set; } = true;
-        public int MinimumNumberOfDigits { get; set; } = 0;
+        public int MinimumNumberOfDigits { get; set; }
         public bool AlwaysShowSeparator { get; set; } = true;
 
         public bool AllowENotation { get; set; }

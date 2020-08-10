@@ -13,6 +13,7 @@ using JetBrains.Annotations;
 
 namespace CSharpUtilsNETFramework
 {
+    [PublicAPI]
     public static class JavaValidation
     {
 
@@ -22,7 +23,7 @@ namespace CSharpUtilsNETFramework
 
         private static int MinimumRequiredJavaMajorVersion = 8;
 
-        private static bool AlwaysCheckJavaVersion = false;
+        private static bool AlwaysCheckJavaVersion;
 
         private static int _javaMajorVersionNumber; // Initial value 0
 

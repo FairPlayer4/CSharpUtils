@@ -18,7 +18,7 @@ namespace CSharpUtilsNETStandard.Utils
     {
         ERROR, WARNING, INFO, TRACE, GARBAGE
     }
-
+    [PublicAPI]
     public static class Logger
     {
         [NotNull]

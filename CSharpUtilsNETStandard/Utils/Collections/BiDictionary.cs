@@ -7,6 +7,7 @@ using JetBrains.Annotations;
 
 namespace CSharpUtilsNETStandard.Utils.Collections
 {
+    [PublicAPI]
     public sealed class BiDictionary<TFirst, TSecond>
     {
         private readonly Dictionary<TFirst, TSecond> _firstToSecond = new Dictionary<TFirst, TSecond>();

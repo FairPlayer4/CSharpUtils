@@ -9,6 +9,7 @@ using JetBrains.Annotations;
 
 namespace CSharpUtilsNETStandard.Utils
 {
+    [PublicAPI]
     public static class FileUtils
     {
 

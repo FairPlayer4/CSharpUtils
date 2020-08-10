@@ -8,6 +8,7 @@ using JetBrains.Annotations;
 
 namespace CSharpUtilsNETFramework.GUI.ControlAdapters.AbstractAdapters
 {
+    [PublicAPI]
     public abstract class TableObjectAdapter<TControl, TControlItem, TObject, TObjectText> : ControlObjectAdapter<TControl, TControlItem, TObject, TObjectText>
     {
         [NotNull]
@@ -29,10 +30,7 @@ namespace CSharpUtilsNETFramework.GUI.ControlAdapters.AbstractAdapters
         }
 
         [NotNull, ItemNotNull]
-        public List<TObject> GetSelectedValues()
-        {
-            return SelectedValues.ToList();
-        }
+        public List<TObject> GetSelectedValues() => SelectedValues.ToList();
 
         # region Constructors
 

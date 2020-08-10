@@ -13,6 +13,7 @@ namespace CSharpUtilsNETStandard.Utils.Reflection
     /// Used for caching reflection property
     /// </summary>
     /// <typeparam name="TReturn">The type of the property</typeparam>
+    [PublicAPI]
     public sealed class ReflectionProperty<TReturn>
     {
         [NotNull]

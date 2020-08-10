@@ -13,9 +13,9 @@ using JetBrains.Annotations;
 
 namespace CSharpUtilsNETFramework.Controls
 {
-
+    [PublicAPI]
     public enum ColumnContentPriority { Low, Medium, High }
-
+    [PublicAPI]
     public static class ListViewExtensions
     {
         public static int GetEmptyListViewHeight([NotNull]this ListView listView)
@@ -291,6 +291,7 @@ namespace CSharpUtilsNETFramework.Controls
         }
     }
 
+    [PublicAPI]
     public sealed class ListViewColumnSorter : IComparer, IComparer<ListViewItem>
     {
         public int ColumnToSort;

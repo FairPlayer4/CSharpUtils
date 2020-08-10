@@ -18,6 +18,7 @@ namespace CSharpUtilsNETStandard.Utils.Collections
     /// </summary>
     /// <typeparam name="TKey"></typeparam>
     /// <typeparam name="TValue"></typeparam>
+    [PublicAPI]
     public sealed class DictionaryList<TKey, TValue> : IDictionary<TKey, TValue>, IDictionary, IReadOnlyDictionaryList<TKey, TValue>, IListUtil<TKey>
     {
         [NotNull]

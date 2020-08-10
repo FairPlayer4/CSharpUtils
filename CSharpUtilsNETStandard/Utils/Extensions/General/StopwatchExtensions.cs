@@ -7,6 +7,7 @@ using JetBrains.Annotations;
 
 namespace CSharpUtilsNETStandard.Utils.Extensions.General
 {
+    [PublicAPI]
     public static class StopwatchExtensions
     {
 

@@ -10,6 +10,7 @@ using JetBrains.Annotations;
 
 namespace CSharpUtilsNETFramework
 {
+    [PublicAPI]
     public static class FileUtils
     {
         [NotNull]

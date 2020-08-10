@@ -20,6 +20,7 @@ namespace CSharpUtilsNETStandard.Utils.Extensions.General
     /// The methods will check that the Attribute/Element Name exists in the XElement.
     /// If the Element/Attribute Name exists then their Value is converted using the ConversionExtensions
     /// </summary>
+    [PublicAPI]
     public static class XmlExtensions
     {
         private const string Category = nameof(XmlExtensions);

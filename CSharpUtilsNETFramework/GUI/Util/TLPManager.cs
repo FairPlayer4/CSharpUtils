@@ -11,6 +11,7 @@ using JetBrains.Annotations;
 
 namespace CSharpUtilsNETFramework.GUI.Util
 {
+    [PublicAPI]
     public sealed class TLPManager
     {
         [NotNull]
@@ -38,10 +39,7 @@ namespace CSharpUtilsNETFramework.GUI.Util
         public bool IsReady => IsTLPReady(_tlp);
 
         [CanBeNull]
-        public static TLPManager CreateTLPManager([NotNull] TableLayoutPanel tlp)
-        {
-            return !PassedChecks(tlp) ? null : new TLPManager(tlp);
-        }
+        public static TLPManager CreateTLPManager([NotNull] TableLayoutPanel tlp) => !PassedChecks(tlp) ? null : new TLPManager(tlp);
 
         private TLPManager([NotNull] TableLayoutPanel tlp)
         {

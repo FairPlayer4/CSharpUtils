@@ -1,7 +1,6 @@
 ﻿#region Imports
 
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using JetBrains.Annotations;
 
@@ -20,8 +19,7 @@ namespace CSharpUtilsNETStandard.Utils.Extensions.Collections
     /// Provides the DeepCopy method for nested Collections.
     /// Works only with immutable types.
     /// </summary>
-    [SuppressMessage("ReSharper", "PossibleNullReferenceException")]
-    [SuppressMessage("ReSharper", "AssignNullToNotNullAttribute")]
+    [PublicAPI]
     public static class DeepCopyExtension
     {
         // TODO General Refactoring

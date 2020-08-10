@@ -10,6 +10,7 @@ namespace CSharpUtilsNETStandard.Utils.Extensions.Collections.ToString
     /// This class is used to format strings of enumerables and dictionaries.
     /// <see cref="CollectionPrinter"/> and <see cref="ToReadableStringExtension"/>
     /// </summary>
+    [PublicAPI]
     public sealed class EnumerablePrintFormat
     {
 

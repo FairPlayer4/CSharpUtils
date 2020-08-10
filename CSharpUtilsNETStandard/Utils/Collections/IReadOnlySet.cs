@@ -7,6 +7,7 @@ using JetBrains.Annotations;
 
 namespace CSharpUtilsNETStandard.Utils.Collections
 {
+    [PublicAPI]
     public interface IReadOnlySet<T> : IReadOnlyCollection<T>
     {
         [Pure]
@@ -33,12 +34,14 @@ namespace CSharpUtilsNETStandard.Utils.Collections
         bool SetEquals([NotNull] IEnumerable<T> other);
     }
 
+    [PublicAPI]
     public interface IAddOnlySet<T> : IReadOnlySet<T>
     {
         bool Add([NotNull] T item);
         void AddRange([NotNull] IEnumerable<T> items);
     }
 
+    [PublicAPI]
     public interface IStackSet<T> : IReadOnlyCollection<T>
     {
         T Peek();

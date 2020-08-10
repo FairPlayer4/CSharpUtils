@@ -15,7 +15,7 @@ using JetBrains.Annotations;
 
 namespace CSharpUtilsNETFramework.GUI.GenericListSelectionControl
 {
-
+    [PublicAPI]
     public sealed class GenericColumnSpecification<T>
     {
         public string Name { get; private set; }
@@ -34,6 +34,7 @@ namespace CSharpUtilsNETFramework.GUI.GenericListSelectionControl
         }
     }
 
+    [PublicAPI]
     public sealed class GenericAdapterConfiguration<T>
     {
         [NotNull]
@@ -57,6 +58,7 @@ namespace CSharpUtilsNETFramework.GUI.GenericListSelectionControl
         }
     }
 
+    [PublicAPI]
     public sealed class GenericListSelectionAdapter<T>
     {
         #region Events

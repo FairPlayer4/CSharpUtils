@@ -1,11 +1,13 @@
 ﻿#region Imports
 
 using System;
+using JetBrains.Annotations;
 
 #endregion
 
 namespace CSharpUtilsNETStandard.Utils.Extensions.General
 {
+    [PublicAPI]
     public static class NumberExtensions
     {
 

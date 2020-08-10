@@ -15,6 +15,7 @@ namespace CSharpUtilsNETStandard.Utils.Extensions.Collections.ToString
     /// Provides some convenience methods for adding Formats and custom ToString methods.
     /// Overrides the ToString Method which prints the enumerable using <see cref="ToReadableStringExtension"/>.
     /// </summary>
+    [PublicAPI]
     public class CollectionPrinter
     {
         [NotNull]
@@ -31,7 +32,7 @@ namespace CSharpUtilsNETStandard.Utils.Extensions.Collections.ToString
                 if (obj is T value) return toStringMethod(value);
                 if (obj == null) return ToReadableStringExtension.NullString;
                 string returnMessage = "Invalid Type provided for the ToString() Method!\nGiven Type: " + obj.GetType().Name + " | Required Type: " + typeof(T).Name;
-                Logger.PrintWarning(returnMessage, typeof(CollectionPrinter).Name);
+                Logger.PrintWarning(returnMessage, nameof(CollectionPrinter));
                 return returnMessage;
             };
         }
@@ -74,6 +75,7 @@ namespace CSharpUtilsNETStandard.Utils.Extensions.Collections.ToString
             return this;
         }
 
+        [NotNull]
         public override string ToString()
         {
             return _enumerable.ToReadableStringNested(_nestedEnumerablePrintFormatsQueue, _typeToStringMethod);

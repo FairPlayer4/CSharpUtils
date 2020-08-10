@@ -8,6 +8,7 @@ using JetBrains.Annotations;
 
 namespace CSharpUtilsNETFramework.GUI.CustomControls
 {
+    [PublicAPI]
     public partial class MultiControl : UserControl
     {
         public Label Label => label;

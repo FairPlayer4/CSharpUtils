@@ -9,7 +9,7 @@ using JetBrains.Annotations;
 
 namespace CSharpUtilsNETFramework
 {
-
+    [PublicAPI]
     public sealed class TimerAction<T>
     {
         [CanBeNull]
@@ -83,11 +83,12 @@ namespace CSharpUtilsNETFramework
 
         private void HandleTimerTick(object sender, EventArgs e)
         {
-            if (!(sender is Timer timer)) return;
+            if (!(sender is Timer)) return;
             StopTimer(true);
         }
     }
 
+    [PublicAPI]
     public static class DelayedAction
     {
         private static readonly object Lock = new object();

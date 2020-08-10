@@ -12,6 +12,7 @@ using JetBrains.Annotations;
 
 namespace CSharpUtilsNETFramework.GUI.ControlAdapters
 {
+    [PublicAPI]
     public class ComboboxObjectAdapter<TObject> : ControlObjectAdapter<ComboBox, object, TObject, string>
     {
         public delegate void SelectionChangedHandler(ComboboxObjectAdapter<TObject> adapter, TObject selectedItem);

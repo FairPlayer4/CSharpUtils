@@ -13,6 +13,7 @@ using JetBrains.Annotations;
 
 namespace CSharpUtilsNETStandard.Utils.Extensions.General
 {
+    [PublicAPI]
     public static class ConversionExtensions
     {
         private const string Category = nameof(ConversionExtensions);
@@ -25,9 +26,12 @@ namespace CSharpUtilsNETStandard.Utils.Extensions.General
 
         public static T UnboxOrDefault<T>([CanBeNull] this object o, T defaultValue = default) where T : struct, IConvertible
         {
-            if (o == null) return defaultValue;
-            if (o is T convertible) return convertible;
-            return o.ToString().ConvertOrDefault(defaultValue); //Last effort
+            switch (o)
+            {
+                case null:          return defaultValue;
+                case T convertible: return convertible;
+                default:            return o.ToString().ConvertOrDefault(defaultValue); //Last effort
+            }
         }
 
         [NotNull]

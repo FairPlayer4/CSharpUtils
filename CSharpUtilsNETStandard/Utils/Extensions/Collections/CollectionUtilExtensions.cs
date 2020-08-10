@@ -12,6 +12,7 @@ using JetBrains.Annotations;
 
 namespace CSharpUtilsNETStandard.Utils.Extensions.Collections
 {
+    [PublicAPI]
     public static class CollectionUtilExtensions
     {
         [NotNull]
@@ -447,7 +448,7 @@ namespace CSharpUtilsNETStandard.Utils.Extensions.Collections
 
         private static void PrintLogOnFailure<TKey, TValue>([NotNull] TKey key, [CanBeNull] LogLevel? failureLogLevel)
         {
-            if (failureLogLevel.HasValue) Logger.PrintLogLevel(failureLogLevel.Value, string.Format("The key {0} was not found in a Dictionary of <{1}, {2}>! This warning message is for debugging purposes and could be normal behaviour.", key.ToString(), typeof(TKey).Name, typeof(TValue).Name), typeof(CollectionUtilExtensions).Name);
+            if (failureLogLevel.HasValue) Logger.PrintLogLevel(failureLogLevel.Value, string.Format("The key {0} was not found in a Dictionary of <{1}, {2}>! This warning message is for debugging purposes and could be normal behaviour.", key.ToString(), typeof(TKey).Name, typeof(TValue).Name), nameof(CollectionUtilExtensions));
         }
 
         public static void ForEachValue<TKey, TValue>([NotNull]this IReadOnlyDictionary<TKey, TValue> dictionary, [NotNull]Action<TValue> action)

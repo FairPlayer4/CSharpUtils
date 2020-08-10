@@ -6,7 +6,8 @@ using JetBrains.Annotations;
 
 namespace CSharpUtilsNETStandard.Utils
 {
-    public struct IntRange
+    [PublicAPI]
+    public readonly struct IntRange
     {
         public readonly int MinimumNumber;
         public readonly int MaximumNumber;
@@ -35,6 +36,7 @@ namespace CSharpUtilsNETStandard.Utils
 
         public int TotalDistance => MaximumNumber - MinimumNumber;
 
+        [NotNull]
         public override string ToString()
         {
             return string.Format("Range [{0}, {1}]", MinimumNumber, MaximumNumber);

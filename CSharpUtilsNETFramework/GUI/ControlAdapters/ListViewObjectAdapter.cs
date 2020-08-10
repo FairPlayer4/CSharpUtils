@@ -17,6 +17,7 @@ using JetBrains.Annotations;
 
 namespace CSharpUtilsNETFramework.GUI.ControlAdapters
 {
+    [PublicAPI]
     public sealed class ListViewObjectAdapter<TObject> : TableObjectAdapter<ListView, ListViewItem, TObject, ListViewAdapterRowContent>
     {
         public delegate void ItemCreatedEventHandler(TObject value, ListViewItem item);
@@ -39,6 +40,7 @@ namespace CSharpUtilsNETFramework.GUI.ControlAdapters
         public ListViewObjectAdapter([NotNull] ListView control, [NotNull] GetObjectTextHandler objectTextHandler, [NotNull] string[] columnHeaders, [CanBeNull] GetObjectTooltipHandler tooltipHandler = null, bool createSorterIfColumnClicked = true)
             : base(control, objectTextHandler)
         {
+            // ReSharper disable once UnusedVariable
             IntPtr handle = control.Handle; //This makes sure that the ListView Handle is created => Prevents some bad states where the ListView Items have no valid index
             SortingByColumnClickInProgress = false;
 
@@ -60,10 +62,7 @@ namespace CSharpUtilsNETFramework.GUI.ControlAdapters
             OnAfterValuesLoaded += adapter =>
             {
                 // Setting the tool tips is only possible AFTER loading the values. Therefore this is done using an event-listener.
-                if (_tooltipHandler != null)
-                {
-                    SetTooltips(_tooltipHandler);
-                }
+                if (_tooltipHandler != null) SetTooltips(_tooltipHandler);
             };
         }
 
@@ -472,7 +471,7 @@ namespace CSharpUtilsNETFramework.GUI.ControlAdapters
             }
             else
             {
-                Logger.PrintInfo("Provided comparer is not of type " + typeof(BasicListViewItemComparer).Name + " and will be wrapped.");
+                Logger.PrintInfo("Provided comparer is not of type " + nameof(BasicListViewItemComparer) + " and will be wrapped.");
                 BasicListViewItemComparer itemComparer = Control.ListViewItemSorter as BasicListViewItemComparer;
                 comparer = itemComparer ?? new BasicListViewItemComparer(Control.ListViewItemSorter);
             }
@@ -669,6 +668,7 @@ namespace CSharpUtilsNETFramework.GUI.ControlAdapters
 
     }
 
+    [PublicAPI]
     public sealed class ListViewAdapterRowContent
     {
         public bool Checked { get; private set; }

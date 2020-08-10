@@ -19,6 +19,7 @@ namespace CSharpUtilsNETFramework.GUI
     // TODO Refactor TableLayoutPanel Logic and make it usable for UserControls
     // TODO Rework Sizing Logic to be more flexible
     // TODO Add Documentation
+    [PublicAPI]
     public partial class ExtendedForm : Form
     {
         #region Constructors

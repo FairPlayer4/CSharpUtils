@@ -13,6 +13,7 @@ namespace CSharpUtilsNETStandard.Utils.Reflection
     /// Used for caching reflection methods
     /// </summary>
     /// <typeparam name="TReturn">The return type of the method (use object in case of a void method)</typeparam>
+    [PublicAPI]
     public sealed class ReflectionMethod<TReturn>
     {
         [NotNull]
@@ -68,7 +69,7 @@ namespace CSharpUtilsNETStandard.Utils.Reflection
                     return ReturnFailure("A parameter was null but the required Type was a Value Type!");
                 }
                 if (_parameters[i].IsInstanceOfType(parameters[i])) continue;
-                return ReturnFailure(string.Format("A parameter had the Type {0} but the required Type was {1}", parameters[i].GetType().Name, _parameters[i].Name));
+                return ReturnFailure(string.Format("A parameter had the Type {0} but the required Type was {1}", parameters[i]?.GetType().Name, _parameters[i].Name));
             }
 
             return _method.Invoke(instance, parameters).CastOrDefaultAllowNull(_defaultReturnValue);

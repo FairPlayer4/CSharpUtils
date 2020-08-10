@@ -4,6 +4,7 @@ using JetBrains.Annotations;
 namespace CSharpUtilsNETStandard.Utils.Collections
 {
     // ReSharper disable once PossibleInterfaceMemberAmbiguity
+    [PublicAPI]
     public interface IReadOnlyDictionaryList<TKey, TValue> : IReadOnlyDictionary<TKey, TValue>, IReadOnlyList<TKey>, IReadOnlyList<KeyValuePair<TKey, TValue>>
     {
         [NotNull]

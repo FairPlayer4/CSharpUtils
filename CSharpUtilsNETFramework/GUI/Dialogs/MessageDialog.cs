@@ -10,7 +10,7 @@ using JetBrains.Annotations;
 
 namespace CSharpUtilsNETFramework.GUI.Dialogs
 {
-
+    [PublicAPI]
     public partial class MessageDialog : ExtendedForm
     {
         #region Enums

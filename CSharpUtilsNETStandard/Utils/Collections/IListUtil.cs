@@ -8,7 +8,7 @@ using JetBrains.Annotations;
 
 namespace CSharpUtilsNETStandard.Utils.Collections
 {
-
+    [PublicAPI]
     public interface IReadOnlyListUtil<T>
     {
         [UsedImplicitly, Pure]

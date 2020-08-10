@@ -11,6 +11,7 @@ using JetBrains.Annotations;
 
 namespace CSharpUtilsNETFramework.GUI.ControlAdapters.AbstractAdapters
 {
+    [PublicAPI]
     public abstract class ControlObjectAdapter<TControl, TControlItem, TObject, TObjectText>
     {
         public const string DefaultGroupString = "-?-nogroup-?-";
@@ -181,6 +182,7 @@ namespace CSharpUtilsNETFramework.GUI.ControlAdapters.AbstractAdapters
         public abstract void SetSelectedIndex(int index);
     }
 
+    [PublicAPI]
     public sealed class GroupedObject<TObject>
     {
         public const string DefaultGroupString = "-?-nogroup-?-";

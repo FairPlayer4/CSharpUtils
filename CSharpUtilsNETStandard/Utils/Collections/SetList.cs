@@ -23,6 +23,7 @@ namespace CSharpUtilsNETStandard.Utils.Collections
     /// The non pure ISet methods will perform much slower than the those from the standard HashSet because the List needs to be modified.
     /// </summary>
     /// <typeparam name="T"></typeparam>
+    [PublicAPI]
     public sealed class SetList<T> : IList<T>, IList, ISet<T>, IAddOnlySet<T>, IStackSet<T>, IReadOnlyList<T>, IListUtil<T>, IEquatable<SetList<T>>
     {
         [NotNull]
@@ -471,6 +472,7 @@ namespace CSharpUtilsNETStandard.Utils.Collections
             }
         }
 
+        [NotNull]
         public override string ToString() => list.ToReadableString();
         public T Peek()
         {

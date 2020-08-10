@@ -11,6 +11,7 @@ using JetBrains.Annotations;
 
 namespace CSharpUtilsNETStandard.Utils.Extensions.Collections
 {
+    [PublicAPI]
     public static class ContentEqualsExtension
     {
 

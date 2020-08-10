@@ -13,7 +13,7 @@ using JetBrains.Annotations;
 
 namespace CSharpUtilsNETFramework.Controls
 {
-
+    [PublicAPI]
     public static class ControlExtensions
     {
         [CanBeNull]

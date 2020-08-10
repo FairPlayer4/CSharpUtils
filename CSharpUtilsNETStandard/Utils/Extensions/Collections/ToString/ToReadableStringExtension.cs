@@ -14,6 +14,7 @@ namespace CSharpUtilsNETStandard.Utils.Extensions.Collections.ToString
     [CanBeNull]
     public delegate string ToStringDelegate<in T>([CanBeNull]T value);
 
+    [PublicAPI]
     public static class ToReadableStringExtension
     {
         public const string NullString = "NULL";

@@ -15,6 +15,7 @@ namespace CSharpUtilsNETFramework.GUI.Dialogs
     /// <summary>
     /// This class provides a windows form that shows the calculation progress during analysis to the user.
     /// </summary>
+    [PublicAPI]
     public sealed partial class ProgressDialog : ExtendedForm
     {
         public string Title
