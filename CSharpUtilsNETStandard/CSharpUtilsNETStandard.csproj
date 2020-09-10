@@ -2,6 +2,20 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageProjectUrl>https://github.com/FairPlayer4/CSharpUtils</PackageProjectUrl>
+    <Authors>Kevin Bartik</Authors>
+    <Company></Company>
+    <PackageLicenseFile></PackageLicenseFile>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <Copyright>Copyright (c) 2019 Kevin Bartik</Copyright>
+    <Description>C# Utils that work with .NET Standard 2.0</Description>
+    <RepositoryUrl>https://github.com/FairPlayer4/CSharpUtils</RepositoryUrl>
+    <PackageReleaseNotes>Initial version for testing publishing process</PackageReleaseNotes>
+    <PackageTags>Utils, Collections, Conversion, Reflection, XML, Extensions</PackageTags>
+    <Version>0.9.0</Version>
+    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+    <Product>CSharpUtilsNETStandard</Product>
   </PropertyGroup>
 
   <ItemGroup>
