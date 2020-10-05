@@ -21,9 +21,13 @@ namespace CSharpUtilsNETFramework.GUI.ControlAdapters
     public sealed class ListViewObjectAdapter<TObject> : TableObjectAdapter<ListView, ListViewItem, TObject, ListViewAdapterRowContent>
     {
         public delegate void ItemCreatedEventHandler(TObject value, ListViewItem item);
+
+        [CanBeNull]
         public ItemCreatedEventHandler OnItemCreated;
 
         public delegate void OnAfterSortedEvent(int columnIndex);
+
+        [CanBeNull]
         public OnAfterSortedEvent OnAfterSorted;
 
         /// <summary>
@@ -33,8 +37,10 @@ namespace CSharpUtilsNETFramework.GUI.ControlAdapters
 
         public bool CreateSorterIfColumnClicked { get; set; }
 
+        [CanBeNull]
         private GetObjectTooltipHandler _tooltipHandler;
 
+        [NotNull]
         private readonly Dictionary<ListViewItem, List<Control>> _listViewItemsToChildControlMap = new Dictionary<ListViewItem, List<Control>>();
 
         public ListViewObjectAdapter([NotNull] ListView control, [NotNull] GetObjectTextHandler objectTextHandler, [NotNull] string[] columnHeaders, [CanBeNull] GetObjectTooltipHandler tooltipHandler = null, bool createSorterIfColumnClicked = true)
@@ -60,10 +66,10 @@ namespace CSharpUtilsNETFramework.GUI.ControlAdapters
             // The mapping of the value<->item pairs is only stored within the abstract base class, which only does this after the LoadValues() method terminates.
             // This listener, however, is called by the base-class after the base.LoadValues() terminates.
             OnAfterValuesLoaded += adapter =>
-            {
-                // Setting the tool tips is only possible AFTER loading the values. Therefore this is done using an event-listener.
-                if (_tooltipHandler != null) SetTooltips(_tooltipHandler);
-            };
+                                   {
+                                       // Setting the tool tips is only possible AFTER loading the values. Therefore this is done using an event-listener.
+                                       if (_tooltipHandler != null) SetTooltips(_tooltipHandler);
+                                   };
         }
 
         # region Adapter Methods
@@ -79,7 +85,7 @@ namespace CSharpUtilsNETFramework.GUI.ControlAdapters
             Control.BeginUpdate();
             foreach (var groupedObject in valueList)
             {
-                var listViewGroup = new ListViewGroup(groupedObject.GroupName) { Tag = groupedObject.Tag };
+                ListViewGroup listViewGroup = new ListViewGroup(groupedObject.GroupName) { Tag = groupedObject.Tag };
 
                 Control.Groups.Add(listViewGroup);
 
@@ -94,7 +100,6 @@ namespace CSharpUtilsNETFramework.GUI.ControlAdapters
 
         protected override Dictionary<TObject, ListViewItem> LoadValuesToControl(IEnumerable<TObject> values)
         {
-
             // Delete manual child-controls and clear mapping:
             foreach (Control control in _listViewItemsToChildControlMap.Values.SelectMany(control => control)) Control.Controls.Remove(control);
             // Remove all child-controls. Note: Control.Controls.Clear(); would remove ANY child-controls - not only those managed by the adapter!
@@ -255,7 +260,7 @@ namespace CSharpUtilsNETFramework.GUI.ControlAdapters
             return controlItem != null && controlItem.Checked;
         }
 
-        public void SetValueChecked([NotNull]Func<TObject, bool> isCheckedFunc)
+        public void SetValueChecked([NotNull] Func<TObject, bool> isCheckedFunc)
         {
             CheckBoxesValidityCheck();
             foreach (TObject value in LoadedValues) SetValueCheckedInternal(value, isCheckedFunc(value));
@@ -313,7 +318,7 @@ namespace CSharpUtilsNETFramework.GUI.ControlAdapters
             SetAllChecked(false);
         }
 
-        public void SetOnlyOneItemSelectedAndChecked([NotNull]ListViewItem listViewItem)
+        public void SetOnlyOneItemSelectedAndChecked([NotNull] ListViewItem listViewItem)
         {
             CheckBoxesValidityCheck();
             foreach (ListViewItem item in Control.GetListViewItems().Where(x => !ReferenceEquals(x, listViewItem)))
@@ -334,7 +339,7 @@ namespace CSharpUtilsNETFramework.GUI.ControlAdapters
 
         # region Additional Usability Methods
 
-        public void SetTooltips(GetObjectTooltipHandler tooltipHandler)
+        public void SetTooltips([CanBeNull] GetObjectTooltipHandler tooltipHandler)
         {
             _tooltipHandler = tooltipHandler;
 
@@ -343,7 +348,8 @@ namespace CSharpUtilsNETFramework.GUI.ControlAdapters
             // Update tooltips:
             foreach (ListViewItem item in Control.Items)
             {
-                item.ToolTipText = _tooltipHandler(GetValue(item.Index), item);
+                if (_tooltipHandler != null)
+                    item.ToolTipText = _tooltipHandler(GetValue(item.Index), item);
 
                 // Note that the ListView only shows Tooltips for the first Column. This is a long known shortcoming.
                 // see: https://social.msdn.microsoft.com/Forums/vstudio/en-US/2c641698-36f6-404d-af00-d8e876cfd847/getting-tooltip-to-display-on-all-columns-of-listview-not-just-the-first?forum=vbgeneral
@@ -354,8 +360,6 @@ namespace CSharpUtilsNETFramework.GUI.ControlAdapters
 
 
         #region ListView Methods
-
-
 
         # region Handling Manual Child Controls
 
@@ -418,7 +422,7 @@ namespace CSharpUtilsNETFramework.GUI.ControlAdapters
 
         # endregion
 
-        public override void SetColumnHeaders([NotNull] params string[] headerNames)
+        public override void SetColumnHeaders(params string[] headerNames)
         {
             foreach (string name in headerNames)
             {
@@ -442,7 +446,7 @@ namespace CSharpUtilsNETFramework.GUI.ControlAdapters
             Control.ListViewItemSorter = itemComparator == null ? new BasicListViewItemComparer() : new BasicListViewItemComparer(itemComparator);
         }
 
-        public void Sort(int columnIndex, IComparer itemComparator)
+        public void Sort(int columnIndex, [CanBeNull] IComparer itemComparator)
         {
             BasicListViewItemComparer comparer = itemComparator as BasicListViewItemComparer;
             Control.ListViewItemSorter = comparer ?? new BasicListViewItemComparer(itemComparator);
@@ -554,7 +558,7 @@ namespace CSharpUtilsNETFramework.GUI.ControlAdapters
 
         # region ListView Events
 
-        private void listView_ColumnClick(object sender, ColumnClickEventArgs e)
+        private void listView_ColumnClick([CanBeNull] object sender, [NotNull] ColumnClickEventArgs e)
         {
             if (Control.CheckBoxes && e.Column == 0 || SortingByColumnClickInProgress) return;
 
@@ -594,7 +598,7 @@ namespace CSharpUtilsNETFramework.GUI.ControlAdapters
             public int Column { get; set; }
             public SortOrder SortOrder { get; set; }
 
-            private BasicListViewItemComparer([NotNull]ItemComparatorDelegate comparatorDelegate, int column = 0, SortOrder sortOrder = SortOrder.None)
+            private BasicListViewItemComparer([NotNull] ItemComparatorDelegate comparatorDelegate, int column = 0, SortOrder sortOrder = SortOrder.None)
             {
                 _itemComparatorDelegate = comparatorDelegate;
                 Column = column;
@@ -607,18 +611,14 @@ namespace CSharpUtilsNETFramework.GUI.ControlAdapters
             /// <param name="comparator"></param>
             /// <param name="column"></param>
             /// <param name="sortOrder"></param>
-            public BasicListViewItemComparer(IComparer comparator, int column = 0, SortOrder sortOrder = SortOrder.None)
-                : this((item1, item2, i, order) => DefaultComparator(item1, item2, i, order, comparator), column, sortOrder)
-            {
-            }
+            public BasicListViewItemComparer([CanBeNull] IComparer comparator, int column = 0, SortOrder sortOrder = SortOrder.None)
+                : this((item1, item2, i, order) => DefaultComparator(item1, item2, i, order, comparator), column, sortOrder) { }
 
             /// <summary>
             /// Sorts items by their text.
             /// </summary>
             public BasicListViewItemComparer(int column = 0, SortOrder sortOrder = SortOrder.None)
-                : this((item1, item2, i, order) => DefaultComparator(item1, item2, i, order), column, sortOrder)
-            {
-            }
+                : this((item1, item2, i, order) => DefaultComparator(item1, item2, i, order), column, sortOrder) { }
 
             private static int DefaultComparator([NotNull] ListViewItem item1, [NotNull] ListViewItem item2, int column, SortOrder sortOrder, [CanBeNull] IComparer comparer = null)
             {
@@ -661,28 +661,26 @@ namespace CSharpUtilsNETFramework.GUI.ControlAdapters
 
                 return sortResult;
             }
-
         }
 
         # endregion
-
     }
 
     [PublicAPI]
     public sealed class ListViewAdapterRowContent
     {
         public bool Checked { get; private set; }
+
         [NotNull, ItemNotNull]
         public string[] ColumnTextArray { get; private set; }
+
         [CanBeNull]
         public Font Font { get; set; }
 
-        public ListViewAdapterRowContent([NotNull, ItemNotNull]params string[] columnTextArray)
-            : this(false, columnTextArray)
-        {
-        }
+        public ListViewAdapterRowContent([NotNull, ItemNotNull] params string[] columnTextArray)
+            : this(false, columnTextArray) { }
 
-        public ListViewAdapterRowContent(bool @checked = false, [NotNull, ItemNotNull]params string[] columnTextArray)
+        public ListViewAdapterRowContent(bool @checked = false, [NotNull, ItemNotNull] params string[] columnTextArray)
         {
             Checked = @checked;
             ColumnTextArray = columnTextArray;

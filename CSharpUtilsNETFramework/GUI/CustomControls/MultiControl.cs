@@ -11,36 +11,56 @@ namespace CSharpUtilsNETFramework.GUI.CustomControls
     [PublicAPI]
     public partial class MultiControl : UserControl
     {
+        [NotNull]
         public Label Label => label;
 
+        [NotNull]
         public TextBox TextBox => textBox;
 
+        [NotNull]
         public ComboBox ComboBox => comboBox;
 
+        [NotNull]
         public Button Button => button;
 
         public bool IsLabel
         {
             get => label.Visible;
-            set { label.Visible = value; UpdateMultiControl(); }
+            set
+            {
+                label.Visible = value;
+                UpdateMultiControl();
+            }
         }
 
         public bool IsTextBox
         {
             get => textBox.Visible;
-            set { textBox.Visible = value; UpdateMultiControl(); }
+            set
+            {
+                textBox.Visible = value;
+                UpdateMultiControl();
+            }
         }
 
         public bool IsComboBox
         {
             get => comboBox.Visible;
-            set { comboBox.Visible = value; UpdateMultiControl(); }
+            set
+            {
+                comboBox.Visible = value;
+                UpdateMultiControl();
+            }
         }
 
         public bool IsButton
         {
             get => button.Visible;
-            set { button.Visible = value; UpdateMultiControl(); }
+            set
+            {
+                button.Visible = value;
+                UpdateMultiControl();
+            }
         }
 
         public void UpdateMultiControl()
@@ -66,7 +86,7 @@ namespace CSharpUtilsNETFramework.GUI.CustomControls
             InitializeComponent();
         }
 
-        protected override void OnLoad(EventArgs e)
+        protected override void OnLoad([CanBeNull] EventArgs e)
         {
             base.OnLoad(e);
             UpdateMultiControl();

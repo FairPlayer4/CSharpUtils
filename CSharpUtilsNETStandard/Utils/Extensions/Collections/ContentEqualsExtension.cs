@@ -14,30 +14,33 @@ namespace CSharpUtilsNETStandard.Utils.Extensions.Collections
     [PublicAPI]
     public static class ContentEqualsExtension
     {
-
         #region Extra Stuff
 
-        public static bool ContentEqualsIgnoreOrder<T>([CanBeNull, ItemCanBeNull] this IEnumerable<T> enumerable, [CanBeNull, ItemCanBeNull] IEnumerable<T> enumerableOther) where T : IEquatable<T>
+        public static bool ContentEqualsIgnoreOrder<T>([CanBeNull, ItemCanBeNull] this IEnumerable<T> enumerable, [CanBeNull, ItemCanBeNull] IEnumerable<T> enumerableOther)
+            where T : IEquatable<T>
         {
             return ContentEquals(enumerable, enumerableOther, ignoreOrder: true);
         }
 
-        public static bool ContentEqualsIgnoreOrder<T>([CanBeNull, ItemCanBeNull] this ICollection<T> collection, [CanBeNull, ItemCanBeNull] ICollection<T> collectionOther) where T : IEquatable<T>
+        public static bool ContentEqualsIgnoreOrder<T>([CanBeNull, ItemCanBeNull] this ICollection<T> collection, [CanBeNull, ItemCanBeNull] ICollection<T> collectionOther)
+            where T : IEquatable<T>
         {
             return ContentEquals(collection, collectionOther, ignoreOrder: true);
         }
 
-        public static bool SetEquals<T>([CanBeNull, ItemCanBeNull] this IEnumerable<T> enumerable, [CanBeNull, ItemCanBeNull] IEnumerable<T> enumerableOther) where T : IEquatable<T>
+        public static bool SetEquals<T>([CanBeNull, ItemCanBeNull] this IEnumerable<T> enumerable, [CanBeNull, ItemCanBeNull] IEnumerable<T> enumerableOther)
+            where T : IEquatable<T>
         {
             return ContentEquals(enumerable, enumerableOther, true, true);
         }
 
-        public static bool SetEquals<T>([CanBeNull, ItemCanBeNull] this ICollection<T> collection, [CanBeNull, ItemCanBeNull] ICollection<T> collectionOther) where T : IEquatable<T>
+        public static bool SetEquals<T>([CanBeNull, ItemCanBeNull] this ICollection<T> collection, [CanBeNull, ItemCanBeNull] ICollection<T> collectionOther)
+            where T : IEquatable<T>
         {
             return ContentEquals(collection, collectionOther, true, true);
         }
 
-        public static bool EqualsAny<T>([NotNull]this T value, [NotNull] params T[] others)
+        public static bool EqualsAny<T>([NotNull] this T value, [NotNull, ItemCanBeNull] params T[] others)
         {
             return others.Length > 0 && others.Any(other => value.Equals(other));
         }
@@ -54,7 +57,8 @@ namespace CSharpUtilsNETStandard.Utils.Extensions.Collections
         /// <param name="ignoreDuplicates"></param>
         /// <param name="ignoreOrder"></param>
         /// <returns></returns>
-        public static bool ContentEquals<T>([CanBeNull, ItemCanBeNull]this IEnumerable<T> enumerable, [CanBeNull, ItemCanBeNull]IEnumerable<T> enumerableOther, bool ignoreDuplicates = false, bool ignoreOrder = false) where T : IEquatable<T>
+        public static bool ContentEquals<T>([CanBeNull, ItemCanBeNull] this IEnumerable<T> enumerable, [CanBeNull, ItemCanBeNull] IEnumerable<T> enumerableOther, bool ignoreDuplicates = false, bool ignoreOrder = false)
+            where T : IEquatable<T>
         {
             // First use the normal Equals method => returns true if both object are null, have the same reference or if the Equals method is overridden and both objects are considered equal.
             if (Equals(enumerable, enumerableOther)) return true;
@@ -63,7 +67,8 @@ namespace CSharpUtilsNETStandard.Utils.Extensions.Collections
             return enumerable.ContentEqualsFullCheck(enumerableOther, ignoreDuplicates, ignoreOrder);
         }
 
-        public static bool ContentEquals<T>([CanBeNull, ItemCanBeNull]this ICollection<T> collection, [CanBeNull, ItemCanBeNull]ICollection<T> collectionOther, bool ignoreDuplicates = false, bool ignoreOrder = false) where T : IEquatable<T>
+        public static bool ContentEquals<T>([CanBeNull, ItemCanBeNull] this ICollection<T> collection, [CanBeNull, ItemCanBeNull] ICollection<T> collectionOther, bool ignoreDuplicates = false, bool ignoreOrder = false)
+            where T : IEquatable<T>
         {
             // First use the normal Equals method => returns true if both object are null, have the same reference or if the Equals method is overridden and both objects are considered equal.
             if (Equals(collection, collectionOther)) return true;
@@ -78,7 +83,8 @@ namespace CSharpUtilsNETStandard.Utils.Extensions.Collections
             return collection.FirstOrDefault().CheckNullThenEquals(collectionOther.FirstOrDefault());
         }
 
-        private static bool ContentEqualsFullCheck<T>([NotNull, ItemCanBeNull]this IEnumerable<T> enumerable, [NotNull, ItemCanBeNull]IEnumerable<T> enumerableOther, bool ignoreDuplicates, bool ignoreOrder) where T : IEquatable<T>
+        private static bool ContentEqualsFullCheck<T>([NotNull, ItemCanBeNull] this IEnumerable<T> enumerable, [NotNull, ItemCanBeNull] IEnumerable<T> enumerableOther, bool ignoreDuplicates, bool ignoreOrder)
+            where T : IEquatable<T>
         {
             if (ignoreDuplicates)
             {
@@ -93,7 +99,9 @@ namespace CSharpUtilsNETStandard.Utils.Extensions.Collections
                     IList<T> setOther = enumerableOther as SetList<T> ?? new SetList<T>(enumerableOther);
                     int setSize = set.Count;
                     if (setSize != setOther.Count) return false;
-                    for (int i = 0; i < setSize; i++) if (!set[i].CheckNullThenEquals(setOther[i])) return false;
+                    for (int i = 0; i < setSize; i++)
+                        if (!set[i].CheckNullThenEquals(setOther[i]))
+                            return false;
                 }
             }
             else
@@ -112,12 +120,16 @@ namespace CSharpUtilsNETStandard.Utils.Extensions.Collections
                 }
                 int listSize = list.Count;
                 if (listSize != listOther.Count) return false;
-                for (int i = 0; i < listSize; i++) if (!list[i].CheckNullThenEquals(listOther[i])) return false;
+                for (int i = 0; i < listSize; i++)
+                    if (!list[i].CheckNullThenEquals(listOther[i]))
+                        return false;
             }
             return true;
         }
 
-        public static bool ContentEquals<TKey, TValue>([CanBeNull]this IDictionary<TKey, TValue> dictionary, [CanBeNull]IDictionary<TKey, TValue> dictionaryOther) where TKey : IEquatable<TKey> where TValue : IEquatable<TValue>
+        public static bool ContentEquals<TKey, TValue>([CanBeNull] this IDictionary<TKey, TValue> dictionary, [CanBeNull] IDictionary<TKey, TValue> dictionaryOther)
+            where TKey : IEquatable<TKey>
+            where TValue : IEquatable<TValue>
         {
             // First use the normal Equals method => returns true if both object are null, have the same reference or if the Equals method is overridden and both objects are considered equal.
             if (Equals(dictionary, dictionaryOther)) return true;
@@ -126,7 +138,6 @@ namespace CSharpUtilsNETStandard.Utils.Extensions.Collections
             if (dictionary.Count != dictionaryOther.Count) return false;
             foreach (KeyValuePair<TKey, TValue> keyValuePair in dictionary)
             {
-                // ReSharper disable once AssignNullToNotNullAttribute
                 if (!dictionaryOther.TryGetValue(keyValuePair.Key, out TValue value)) return false;
                 if (!keyValuePair.Value.CheckNullThenEquals(value)) return false;
             }
@@ -140,19 +151,28 @@ namespace CSharpUtilsNETStandard.Utils.Extensions.Collections
         /// <param name="value"></param>
         /// <param name="valueOther"></param>
         /// <returns></returns>
-        public static bool CheckNullThenEquals<T>([CanBeNull]this T value, [CanBeNull]T valueOther) where T : IEquatable<T>
+        public static bool CheckNullThenEquals<T>([CanBeNull] this T value, [CanBeNull] T valueOther)
+            where T : IEquatable<T>
         {
             if (ReferenceEquals(value, valueOther)) return true;
             if (value == null || valueOther == null) return false;
             return value.Equals(valueOther);
         }
 
-        public static bool EqualsConsiderEnumerable([CanBeNull] this object obj, [CanBeNull] object objOther, bool ignoreDuplicates = false, bool ignoreOrder = false, bool ignoreDuplicatesOnInnerEnumerables = false, bool ignoreOrderOnInnerEnumerables = false)
+        public static bool EqualsConsiderEnumerable(
+            [CanBeNull] this object obj, [CanBeNull] object objOther, bool ignoreDuplicates = false, bool ignoreOrder = false, bool ignoreDuplicatesOnInnerEnumerables = false,
+            bool ignoreOrderOnInnerEnumerables = false
+        )
         {
             if (Equals(obj, objOther)) return true;
             if (obj == null || objOther == null) return false;
             if (!(obj is IEnumerable enumerable) || !(objOther is IEnumerable enumerableOther)) return false;
-            return NestedContentEquals(enumerable, enumerableOther, ignoreDuplicates, ignoreOrder, ignoreDuplicatesOnInnerEnumerables, ignoreOrderOnInnerEnumerables);
+            return NestedContentEquals(enumerable,
+                                       enumerableOther,
+                                       ignoreDuplicates,
+                                       ignoreOrder,
+                                       ignoreDuplicatesOnInnerEnumerables,
+                                       ignoreOrderOnInnerEnumerables);
         }
 
         /// <summary>
@@ -170,7 +190,10 @@ namespace CSharpUtilsNETStandard.Utils.Extensions.Collections
         /// <param name="ignoreDuplicatesOnInnerEnumerables">If true then inner (nested) enumerables are compared ignoring element order and removing duplicate elements before comparison.</param>
         /// <param name="ignoreOrderOnInnerEnumerables">If true then inner (nested) enumerables are compared ignoring element order.</param>
         /// <returns></returns>
-        public static bool NestedContentEquals([CanBeNull]this IEnumerable enumerable, [CanBeNull]IEnumerable enumerableOther, bool ignoreDuplicates = false, bool ignoreOrder = false, bool ignoreDuplicatesOnInnerEnumerables = false, bool ignoreOrderOnInnerEnumerables = false)
+        public static bool NestedContentEquals(
+            [CanBeNull, ItemCanBeNull] this IEnumerable enumerable, [CanBeNull, ItemCanBeNull] IEnumerable enumerableOther, bool ignoreDuplicates = false, bool ignoreOrder = false, bool ignoreDuplicatesOnInnerEnumerables = false,
+            bool ignoreOrderOnInnerEnumerables = false
+        )
         {
             // First use the normal Equals method => returns true if both object are null, have the same reference or if the Equals method is overridden and both objects are considered equal.
             if (Equals(enumerable, enumerableOther)) return true;
@@ -185,8 +208,9 @@ namespace CSharpUtilsNETStandard.Utils.Extensions.Collections
             // If both enumerables are directories then threat them as such
             if (enumerable is IDictionary dictionary && enumerableOther is IDictionary dictionaryOther)
             {
-                return dictionary.NestedContentEquals(dictionaryOther, ignoreDuplicatesOnInnerEnumerables,
-                    ignoreOrderOnInnerEnumerables);
+                return dictionary.NestedContentEquals(dictionaryOther,
+                                                      ignoreDuplicatesOnInnerEnumerables,
+                                                      ignoreOrderOnInnerEnumerables);
             }
             // If duplicates are ignored then the order must also be ignored because otherwise it would matter in what way duplicates are removed.
             if (ignoreDuplicates) ignoreOrder = true;
@@ -196,12 +220,12 @@ namespace CSharpUtilsNETStandard.Utils.Extensions.Collections
             if (ignoreDuplicates)
             {
                 IEnumerable<object> duplicateList = list.GetAllDuplicates(ignoreDuplicatesOnInnerEnumerables, ignoreOrderOnInnerEnumerables);
-                foreach (var duplicate in duplicateList)
+                foreach (object duplicate in duplicateList)
                 {
                     list.Remove(duplicate);
                 }
                 IEnumerable<object> duplicateListOther = listOther.GetAllDuplicates(ignoreDuplicatesOnInnerEnumerables, ignoreOrderOnInnerEnumerables);
-                foreach (var duplicate in duplicateListOther)
+                foreach (object duplicate in duplicateListOther)
                 {
                     listOther.Remove(duplicate);
                 }
@@ -210,7 +234,7 @@ namespace CSharpUtilsNETStandard.Utils.Extensions.Collections
             List<int> indexList = new List<int>();
             if (ignoreOrder)
             {
-                foreach (var element in list)
+                foreach (object element in list)
                 {
                     for (int i = 0; i < listOther.Count; i++)
                     {
@@ -252,9 +276,11 @@ namespace CSharpUtilsNETStandard.Utils.Extensions.Collections
             return null;
         }
 
-        public static bool NestedContentEquals([CanBeNull]this IDictionary dictionary, [CanBeNull]IDictionary dictionaryOther,
+        public static bool NestedContentEquals(
+            [CanBeNull] this IDictionary dictionary, [CanBeNull] IDictionary dictionaryOther,
             bool ignoreDuplicatesOnInnerEnumerables = false,
-            bool ignoreOrderOnInnerEnumerables = false)
+            bool ignoreOrderOnInnerEnumerables = false
+        )
         {
             // First use the normal Equals method => returns true if both object are null, have the same reference or if the Equals method is overridden and both objects are considered equal.
             if (Equals(dictionary, dictionaryOther)) return true;
@@ -280,7 +306,8 @@ namespace CSharpUtilsNETStandard.Utils.Extensions.Collections
             return true;
         }
 
-        public static bool HasDuplicates<T>([CanBeNull]this IEnumerable<T> enumerable) where T : IEquatable<T>
+        public static bool HasDuplicates<T>([CanBeNull, ItemCanBeNull] this IEnumerable<T> enumerable)
+            where T : IEquatable<T>
         {
             if (enumerable == null) return false;
             HashSet<T> set = new HashSet<T>();
@@ -295,7 +322,7 @@ namespace CSharpUtilsNETStandard.Utils.Extensions.Collections
         /// <param name="ignoreDuplicatesOnInnerEnumerables">If true then inner (nested) enumerables are compared ignoring element order and removing duplicate elements before comparison.</param>
         /// <param name="ignoreOrderOnInnerEnumerables">If true then inner (nested) enumerables are compared ignoring order.</param>
         /// <returns></returns>
-        public static bool HasDuplicatesNested([CanBeNull]this IEnumerable enumerable, bool ignoreDuplicatesOnInnerEnumerables = false, bool ignoreOrderOnInnerEnumerables = false)
+        public static bool HasDuplicatesNested([CanBeNull, ItemCanBeNull] this IEnumerable enumerable, bool ignoreDuplicatesOnInnerEnumerables = false, bool ignoreOrderOnInnerEnumerables = false)
         {
             if (enumerable == null) return false;
             if (ignoreDuplicatesOnInnerEnumerables) ignoreOrderOnInnerEnumerables = true;
@@ -324,8 +351,8 @@ namespace CSharpUtilsNETStandard.Utils.Extensions.Collections
         /// <param name="ignoreDuplicatesOnInnerEnumerables"></param>
         /// <param name="ignoreOrderOnInnerEnumerables"></param>
         /// <returns></returns>
-        [NotNull]
-        private static IEnumerable<object> GetAllDuplicates([CanBeNull]this IEnumerable enumerable, bool ignoreDuplicatesOnInnerEnumerables = false, bool ignoreOrderOnInnerEnumerables = false)
+        [NotNull, ItemCanBeNull]
+        private static IEnumerable<object> GetAllDuplicates([CanBeNull, ItemCanBeNull] this IEnumerable enumerable, bool ignoreDuplicatesOnInnerEnumerables = false, bool ignoreOrderOnInnerEnumerables = false)
         {
             if (ignoreDuplicatesOnInnerEnumerables) ignoreOrderOnInnerEnumerables = true;
             List<object> duplicateList = new List<object>();

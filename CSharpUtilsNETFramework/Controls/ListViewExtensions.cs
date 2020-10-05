@@ -15,16 +15,17 @@ namespace CSharpUtilsNETFramework.Controls
 {
     [PublicAPI]
     public enum ColumnContentPriority { Low, Medium, High }
+
     [PublicAPI]
     public static class ListViewExtensions
     {
-        public static int GetEmptyListViewHeight([NotNull]this ListView listView)
+        public static int GetEmptyListViewHeight([NotNull] this ListView listView)
         {
             int difference = listView.GetOptimalListViewHeightDifference();
             return difference > 0 ? difference : 0;
         }
 
-        public static int GetOptimalListViewHeightDifference([NotNull]this ListView listView)
+        public static int GetOptimalListViewHeightDifference([NotNull] this ListView listView)
         {
             int listViewHeight = listView.Height;
             int totalRowsHeight = 0;
@@ -68,7 +69,7 @@ namespace CSharpUtilsNETFramework.Controls
         public static IEnumerable<ListViewItem> GetCheckedItems([NotNull] this ListView listView) => listView.CheckedItems.Cast<ListViewItem>();
 
         [CanBeNull]
-        public static ListViewItem GetItemFromCursorPosition([NotNull]this ListView listView)
+        public static ListViewItem GetItemFromCursorPosition([NotNull] this ListView listView)
         {
             // translate the mouse position from screen coordinates to
             // client coordinates within the given ListView
@@ -77,7 +78,7 @@ namespace CSharpUtilsNETFramework.Controls
         }
 
         // Scales ListView Columns so that they are not to small on high resolution screens
-        public static void ScaleListViewColumns([NotNull]this ListView listview, SizeF factor)
+        public static void ScaleListViewColumns([NotNull] this ListView listview, SizeF factor)
         {
             foreach (ColumnHeader column in listview.Columns)
                 column.Width = (int)Math.Round(column.Width * factor.Width);
@@ -88,9 +89,9 @@ namespace CSharpUtilsNETFramework.Controls
         private const int CheckBoxColumnMinimumSize = 24;
         private const int ColumnWidthMarginForListViewWidth = 7;
 
-        public static void AutoSizeColumns([NotNull]this ListView listView, bool fitInView = true, [CanBeNull] IReadOnlyList<int> manualColumnWidths = null, [CanBeNull] IReadOnlyList<ColumnContentPriority> columnPriorities = null)
+        public static void AutoSizeColumns([NotNull] this ListView listView, bool fitInView = true, [CanBeNull] IReadOnlyList<int> manualColumnWidths = null, [CanBeNull] IReadOnlyList<ColumnContentPriority> columnPriorities = null)
         {
-            var listViewColumns = listView.Columns;
+            ListView.ColumnHeaderCollection listViewColumns = listView.Columns;
             int columnCount = listViewColumns.Count;
             if (columnCount == 0) return;
             int[] minimumColumnWidths = new int[columnCount];
@@ -98,7 +99,7 @@ namespace CSharpUtilsNETFramework.Controls
             ColumnHeader[] columnHeaders = new ColumnHeader[columnCount];
             for (int i = 0; i < columnCount; i++)
             {
-                var columnHeader = listViewColumns[i];
+                ColumnHeader columnHeader = listViewColumns[i];
                 columnHeaders[i] = columnHeader;
                 int textWidth = TextRenderer.MeasureText(columnHeader.Text, listView.Font).Width;
                 minimumColumnWidths[i] = textWidth + ColumnHeaderTextMargin;
@@ -129,7 +130,9 @@ namespace CSharpUtilsNETFramework.Controls
             if (!fitInView || difference <= 0) return;
             ColumnContentPriority[] adaptedColumnPriorities = new ColumnContentPriority[columnCount];
             for (int i = 0; i < columnCount; i++) adaptedColumnPriorities[i] = ColumnContentPriority.Medium;
-            if (columnPriorities != null) for (int i = 0; i < columnPriorities.Count && i < columnCount; i++) adaptedColumnPriorities[i] = columnPriorities[i];
+            if (columnPriorities != null)
+                for (int i = 0; i < columnPriorities.Count && i < columnCount; i++)
+                    adaptedColumnPriorities[i] = columnPriorities[i];
             int[] shares = FairShare(marginListViewWidth, optimalColumnWidths, minimumColumnWidths, adaptedColumnPriorities);
             for (int i = 0; i < columnCount; i++)
             {
@@ -142,7 +145,7 @@ namespace CSharpUtilsNETFramework.Controls
         // Weights are calculated based on demand so a high demand will produce a low weight
         // Prioritized columns get the highest weight
         // If any index is below minimum space then the demand is reduced to the minimum space (yielding a high weight) and the algorithm is rerun
-        private static int[] FairShare(float availableWidth, [NotNull] int[] optimalWidths, [NotNull]int[] minimumWidths, [NotNull] ColumnContentPriority[] columnContentPriorities, int recursionCounter = 0)
+        private static int[] FairShare(float availableWidth, [NotNull] int[] optimalWidths, [NotNull] int[] minimumWidths, [NotNull] ColumnContentPriority[] columnContentPriorities, int recursionCounter = 0)
         {
             int arrayLength = optimalWidths.Length;
             int minimumWidthsSum = minimumWidths.Sum();

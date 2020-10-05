@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Windows.Forms;
@@ -53,7 +54,7 @@ namespace CSharpUtilsNETFramework.GUI
 
             if (Controls.Count != 1) return;
             // Store all TableLayoutPanels in their Design Size
-            if (!this.EnumerateControlsRecursive().All(IsValid)) Logger.PrintTrace(string.Format("{0} Type: {1} has potential problems with dynamic resizing!", Name, GetType().Name));
+            if (!this.EnumerateControlsRecursive().All(IsValid)) Logger.PrintTrace($"{Name} Type: {GetType().Name} has potential problems with dynamic resizing!");
             foreach (var tlp in this.EnumerateControlsRecursive().OfType<TableLayoutPanel>())
                 StoreTLP(tlp);
             SetMinimumMaximumSize();
@@ -126,12 +127,12 @@ namespace CSharpUtilsNETFramework.GUI
         {
             if (control.Dock == DockStyle.None && !(control is TabPage) && !string.IsNullOrWhiteSpace(control.Name))
             {
-                Logger.PrintTrace(string.Format("{0} Type: {1} is not docked in Form {2} Type: {3}!", control.Name, control.GetType(), Name, GetType().Name));
+                Logger.PrintTrace($"{control.Name} Type: {control.GetType()} is not docked in Form {Name} Type: {GetType().Name}!");
                 return false;
             }
             if (control.Controls.Count <= 1) return true;
             if (control is TableLayoutPanel || control is DataGridView || control is TabControl || control is SplitContainer || control is NumericUpDown) return true;
-            Logger.PrintTrace(string.Format("{0} Type: {1} has multiple child controls but is not a TableLayoutPanel, DataGridView, TabControl, SplitContainer or NumericUpDown in Form {2} Type: {3}!", control.Name, control.GetType(), Name, GetType().Name));
+            Logger.PrintTrace($"{control.Name} Type: {control.GetType()} has multiple child controls but is not a TableLayoutPanel, DataGridView, TabControl, SplitContainer or NumericUpDown in Form {Name} Type: {GetType().Name}!");
             return false;
         }
 
@@ -190,7 +191,7 @@ namespace CSharpUtilsNETFramework.GUI
                     return;
                 }
                 Logger.PrintGarbage("SetRowColumnVisibility started.");
-                var watch = System.Diagnostics.Stopwatch.StartNew();
+                Stopwatch watch = Stopwatch.StartNew();
                 if (rowList == null && columnList != null) rowList = new List<int>();
                 if (rowList != null && columnList == null) columnList = new List<int>();
                 if (!PassedTLPChecks(tlp, rowList, columnList, visible)) return;
@@ -210,7 +211,16 @@ namespace CSharpUtilsNETFramework.GUI
                 Logger.PrintGarbage("SetRowColumnVisibility Size Change was successfully obtained.");
                 int heightChange = sizeChange.Value.Item1;
                 int widthChange = sizeChange.Value.Item2;
-                ApplyVisibilityAndSizeChange(tlp, tlpStore, rowList, columnList, rowStyleList, columnStyleList, controlList, heightChange, widthChange, visible);
+                ApplyVisibilityAndSizeChange(tlp,
+                                             tlpStore,
+                                             rowList,
+                                             columnList,
+                                             rowStyleList,
+                                             columnStyleList,
+                                             controlList,
+                                             heightChange,
+                                             widthChange,
+                                             visible);
                 SetMinimumMaximumSize();
                 watch.Stop();
                 long elapsedMs = watch.ElapsedMilliseconds;
@@ -250,7 +260,7 @@ namespace CSharpUtilsNETFramework.GUI
             return rowList.Count > 0 || columnList.Count > 0;
         }
 
-        [CanBeNull]
+        [CanBeNull, ItemNotNull]
         private List<Control> GetTLPAndParentControlList([NotNull] TableLayoutPanel tlp, bool checkRows, bool checkColumns)
         {
             List<Control> controlList = new List<Control> { tlp };
@@ -268,7 +278,7 @@ namespace CSharpUtilsNETFramework.GUI
                     if (checkColumns && parentTLP.Controls.Cast<Control>().Any(tlpChild => tlpChild != childControl && parentTLP.GetCellPosition(tlpChild).Column == childColumn))
                         return null;
                 }
-                if (!(parentControl is GroupBox || parentControl is TableLayoutPanel || parentControl is UserControl || (parentControl is Panel && !parentControl.GetType().IsSubclassOf(typeof(Panel))))) return null; // Other Controls cannot be handled
+                if (!(parentControl is GroupBox || parentControl is TableLayoutPanel || parentControl is UserControl || parentControl is Panel && !parentControl.GetType().IsSubclassOf(typeof(Panel)))) return null; // Other Controls cannot be handled
                 controlList.Add(parentControl);
                 childControl = parentControl;
             }
@@ -335,7 +345,7 @@ namespace CSharpUtilsNETFramework.GUI
             {
                 foreach (Control control in tlp.Controls)
                 {
-                    var cellPosition = tlp.GetCellPosition(control);
+                    TableLayoutPanelCellPosition cellPosition = tlp.GetCellPosition(control);
                     if (cellPosition.Row != row) continue;
                     if (tlp.GetRowSpan(control) == 1 && undoneRows.Contains(row))
                     {
@@ -358,7 +368,7 @@ namespace CSharpUtilsNETFramework.GUI
             {
                 foreach (Control control in tlp.Controls)
                 {
-                    var cellPosition = tlp.GetCellPosition(control);
+                    TableLayoutPanelCellPosition cellPosition = tlp.GetCellPosition(control);
                     if (cellPosition.Column != column) continue;
                     if (tlp.GetColumnSpan(control) == 1 && undoneColumns.Contains(column))
                     {
@@ -399,7 +409,7 @@ namespace CSharpUtilsNETFramework.GUI
                 foreach (int undoneRow in undoneRows2)
                 {
                     if (isRowPixelPerPercentSet) break;
-                    foreach (var spanControl in controlsWithHigherRowSpan)
+                    foreach (Control spanControl in controlsWithHigherRowSpan)
                     {
                         bool connectsRows = true;
                         for (int row = undoneRow; row < tlp.GetRowSpan(spanControl) + undoneRow; row++)
@@ -424,7 +434,7 @@ namespace CSharpUtilsNETFramework.GUI
                 foreach (int undoneColumn in undoneColumns2)
                 {
                     if (isColumnPixelPerPercentSet) break;
-                    foreach (var spanControl in controlsWithHigherColumnSpan)
+                    foreach (Control spanControl in controlsWithHigherColumnSpan)
                     {
                         bool connectsColumns = true;
                         for (int column = undoneColumn; column < tlp.GetColumnSpan(spanControl) + undoneColumn; column++)
@@ -458,7 +468,10 @@ namespace CSharpUtilsNETFramework.GUI
 
         #endregion
 
-        private void ApplyVisibilityAndSizeChange([NotNull] TableLayoutPanel tlp, [NotNull] TLPManager tlpStore, [NotNull] List<int> rowList, [NotNull] List<int> columnList, [NotNull] List<RowStyle> rowStyleList, [NotNull] List<ColumnStyle> columnStyleList, [NotNull] List<Control> controlList, int heightChange, int widthChange, bool visible)
+        private void ApplyVisibilityAndSizeChange(
+            [NotNull] TableLayoutPanel tlp, [NotNull] TLPManager tlpStore, [NotNull] List<int> rowList, [NotNull] List<int> columnList, [NotNull] List<RowStyle> rowStyleList,
+            [NotNull] List<ColumnStyle> columnStyleList, [NotNull] List<Control> controlList, int heightChange, int widthChange, bool visible
+        )
         {
             this.SuspendDrawing();
             List<Tuple<Control, DockStyle>> list = UndockAdjustSpanningControls(tlp, tlpStore, rowList, columnList, visible);
@@ -492,7 +505,7 @@ namespace CSharpUtilsNETFramework.GUI
             this.ResumeDrawing();
         }
 
-        [CanBeNull]
+        [CanBeNull, ItemNotNull]
         private static List<Tuple<Control, DockStyle>> UndockAdjustSpanningControls([NotNull] TableLayoutPanel tlp, [NotNull] TLPManager tlpStore, [NotNull] List<int> rowList, [NotNull] List<int> columnList, bool visible)
         {
             if (visible) return null;
@@ -525,7 +538,7 @@ namespace CSharpUtilsNETFramework.GUI
                 //int height = control.Height;
                 //int width = control.Width;
                 control.Dock = DockStyle.None;
-                control.Height = 0;//height + heightChange;
+                control.Height = 0; //height + heightChange;
                 control.Width = 0; //width + widthChange;
             }
 
@@ -535,6 +548,5 @@ namespace CSharpUtilsNETFramework.GUI
         #endregion
 
         #endregion
-
     }
 }

@@ -16,7 +16,6 @@ namespace CSharpUtilsNETFramework
     [PublicAPI]
     public static class JavaValidation
     {
-
         private const string LogCategory = nameof(JavaValidation);
 
         private const string JavaVersionCommandMessage = "The command " + "\"java -version\"";
@@ -27,8 +26,10 @@ namespace CSharpUtilsNETFramework
 
         private static int _javaMajorVersionNumber; // Initial value 0
 
+        [NotNull]
         private static string _javaVersionString = ""; // also contains the Release Date of the Java Version
 
+        [NotNull]
         private static readonly object Lock = new object();
 
         public static bool IsJavaValidElseShowMessage()
@@ -125,25 +126,24 @@ namespace CSharpUtilsNETFramework
         private static void ShowMessageThatJavaIsNotValid()
         {
             // Async to avoid problems with tasks that wait for the result of the Java Validation
-            Task.Factory.StartNew(() =>
-            {
-                string javaWebsite = CultureInfo.CurrentUICulture.ToString().StartsWith("de", StringComparison.Ordinal) ? "https://www.java.com/de/download/" : "https://www.java.com/en/download/";
-                DialogResult userDecision = MessageBox.Show("A Java Runtime Environment (JRE or JDK) was not found or is too old!\n" +
-                                                            "Please download and install latest Java Version to run these services and also to ensure that your system is not vulnerable.\n\n" +
-                                                            "If you are getting this message despite using a Java Version " + MinimumRequiredJavaMajorVersion + " or higher then make sure that your environment variables are set correctly.\n" +
-                                                            "You can also try to reinstall Java with the official Java Installer which typically solves these issues.\n\n" +
-                                                            "Do you want to navigate to the official Java download website \"" + javaWebsite + "\"?",
-                    "Java Runtime Validation",
-                    MessageBoxButtons.YesNo,
-                    MessageBoxIcon.Warning,
-                    MessageBoxDefaultButton.Button1
-                );
-                if (userDecision == DialogResult.Yes)
-                {
-                    Process.Start(javaWebsite);
-                }
-            });
+            Task.Factory
+                .StartNew(() =>
+                          {
+                              string javaWebsite =
+                                  CultureInfo.CurrentUICulture
+                                             .ToString()
+                                             .StartsWith("de", StringComparison.Ordinal)
+                                      ? "https://www.java.com/de/download/"
+                                      : "https://www.java.com/en/download/";
+                              DialogResult userDecision =
+                                  MessageBox.Show("A Java Runtime Environment (JRE or JDK) was not found or is too old!\n" + "Please download and install latest Java Version to run these services and also to ensure that your system is not vulnerable.\n\n" + "If you are getting this message despite using a Java Version " + MinimumRequiredJavaMajorVersion + " or higher then make sure that your environment variables are set correctly.\n" + "You can also try to reinstall Java with the official Java Installer which typically solves these issues.\n\n" + "Do you want to navigate to the official Java download website \"" + javaWebsite + "\"?",
+                                                  "Java Runtime Validation",
+                                                  MessageBoxButtons.YesNo,
+                                                  MessageBoxIcon.Warning,
+                                                  MessageBoxDefaultButton.Button1
+                                                 );
+                              if (userDecision == DialogResult.Yes) Process.Start(javaWebsite);
+                          });
         }
-
     }
 }

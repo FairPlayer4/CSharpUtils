@@ -76,6 +76,7 @@ namespace CSharpUtilsNETStandard.Utils.Collections
 
         public ICollection<TValue> Values => dictionary.Values;
 
+        [CanBeNull]
         public TValue this[TKey key]
         {
             get => dictionary[key];
@@ -181,6 +182,7 @@ namespace CSharpUtilsNETStandard.Utils.Collections
 
         ICollection IDictionary.Values => ((IDictionary)dictionary).Values;
 
+        [CanBeNull]
         object IDictionary.this[object key]
         {
             get => ((IDictionary)dictionary)[key];
@@ -191,7 +193,7 @@ namespace CSharpUtilsNETStandard.Utils.Collections
             }
         }
 
-        void IDictionary.Add(object key, object value)
+        void IDictionary.Add(object key, [CanBeNull] object value)
         {
             ((IDictionary)dictionary).Add(key, value);
             ((IList)keySetList).Add(key);
@@ -220,8 +222,12 @@ namespace CSharpUtilsNETStandard.Utils.Collections
         public struct DictionaryListEnumerator : IEnumerator<KeyValuePair<TKey, TValue>>,
                                                  IDictionaryEnumerator
         {
+            [NotNull]
             private readonly Dictionary<TKey, TValue> dictionary;
+
             private Dictionary<TKey, TValue>.Enumerator dictionaryEnumerator;
+
+            [NotNull]
             private readonly IEnumerator<TKey> listEnumerator;
 
             internal DictionaryListEnumerator([NotNull] Dictionary<TKey, TValue> dictionary, [NotNull] SetList<TKey> list) : this()
@@ -266,6 +272,7 @@ namespace CSharpUtilsNETStandard.Utils.Collections
                 }
             }
 
+            [CanBeNull]
             object IDictionaryEnumerator.Value
             {
                 get
@@ -340,7 +347,6 @@ namespace CSharpUtilsNETStandard.Utils.Collections
             keySetList.ForEach(action);
         }
 
-        [NotNull]
         public List<TKey> GetRange(int index, int count) => keySetList.GetRange(index, count);
 
         public int IndexOf(TKey item) => keySetList.IndexOf(item);

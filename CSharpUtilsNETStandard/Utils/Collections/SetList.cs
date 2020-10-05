@@ -26,10 +26,10 @@ namespace CSharpUtilsNETStandard.Utils.Collections
     [PublicAPI]
     public sealed class SetList<T> : IList<T>, IList, ISet<T>, IAddOnlySet<T>, IStackSet<T>, IReadOnlyList<T>, IListUtil<T>, IEquatable<SetList<T>>
     {
-        [NotNull]
+        [NotNull, ItemCanBeNull]
         private readonly HashSet<T> set;
 
-        [NotNull]
+        [NotNull, ItemCanBeNull]
         private readonly List<T> list;
 
         public SetList()
@@ -83,10 +83,12 @@ namespace CSharpUtilsNETStandard.Utils.Collections
             set => list.Capacity = value;
         }
 
+        [NotNull]
         public IEqualityComparer<T> Comparer => set.Comparer;
 
         public int Count => list.Count;
 
+        [CanBeNull]
         public T this[int index]
         {
             get => list[index];
@@ -149,7 +151,7 @@ namespace CSharpUtilsNETStandard.Utils.Collections
             else if (set.Add(item)) list.Insert(index, item);
         }
 
-        public void InsertOrMove(int index, T item)
+        public void InsertOrMove(int index, [CanBeNull] T item)
         {
             if (index < 0 || index > Count) list.Insert(index, item);
             else
@@ -236,6 +238,7 @@ namespace CSharpUtilsNETStandard.Utils.Collections
 
         bool IList.IsReadOnly => ((IList)list).IsReadOnly;
 
+        [CanBeNull]
         object IList.this[int index]
         {
             get => this[index];
@@ -250,18 +253,18 @@ namespace CSharpUtilsNETStandard.Utils.Collections
             return -1;
         }
 
-        void IList.Insert(int index, object value)
+        void IList.Insert(int index, [CanBeNull] object value)
         {
             ((IList)list).Insert(index, value);
             if (set.Add((T)value)) return;
             list.RemoveAt(index);
         }
 
-        int IList.IndexOf(object value) => ((IList)list).IndexOf(value);
+        int IList.IndexOf([CanBeNull] object value) => ((IList)list).IndexOf(value);
 
         bool IList.Contains(object value) => ((IList)list).Contains(value);
 
-        void IList.Remove(object value)
+        void IList.Remove([CanBeNull] object value)
         {
             ((IList)list).Remove(value);
             if (value is T tValue) set.Remove(tValue);
@@ -325,7 +328,6 @@ namespace CSharpUtilsNETStandard.Utils.Collections
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-        [NotNull]
         public List<T> GetRange(int index, int count) => list.GetRange(index, count);
 
         public int IndexOf(T item) => list.IndexOf(item);
@@ -455,7 +457,9 @@ namespace CSharpUtilsNETStandard.Utils.Collections
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
             if (Count != other.Count) return false;
-            for (int i = 0; i < list.Count; i++) if (!Comparer.Equals(list[i], other.list[i])) return false;
+            for (int i = 0; i < list.Count; i++)
+                if (!Comparer.Equals(list[i], other.list[i]))
+                    return false;
             return true;
         }
 
@@ -466,20 +470,29 @@ namespace CSharpUtilsNETStandard.Utils.Collections
             unchecked
             {
                 if (Count == 0) return 0;
-                int hashCode = Comparer.GetHashCode(list[0]);
-                for (int i = 1; i < list.Count; i++) hashCode = (hashCode * 397) ^ Comparer.GetHashCode(list[i]);
+                T firstItem = list[0];
+                int hashCode = firstItem == null ? 0 : Comparer.GetHashCode(firstItem);
+                for (int i = 1; i < list.Count; i++)
+                {
+                    T item = list[i];
+                    int nextHashCode = item == null ? 0 : Comparer.GetHashCode(item);
+                    hashCode = (hashCode * 397) ^ nextHashCode;
+                }
                 return hashCode;
             }
         }
 
         [NotNull]
         public override string ToString() => list.ToReadableString();
+
+        [CanBeNull]
         public T Peek()
         {
             if (Count == 0) return new Stack<T>().Peek(); //This will throw an InvalidOperationException
             return this[0];
         }
 
+        [CanBeNull]
         public T Pop()
         {
             if (Count == 0) return new Stack<T>().Pop(); //This will throw an InvalidOperationException

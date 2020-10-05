@@ -18,10 +18,13 @@ namespace CSharpUtilsNETStandard.Utils.Reflection
     {
         [NotNull]
         private readonly string _propertyName;
+
         [NotNull]
         private readonly Type _instanceType;
+
         [CanBeNull]
         private readonly TReturn _defaultReturnValue;
+
         [CanBeNull]
         private readonly PropertyInfo _property;
 
@@ -29,7 +32,7 @@ namespace CSharpUtilsNETStandard.Utils.Reflection
 
         private readonly bool _canWrite;
 
-        public ReflectionProperty([NotNull]string propertyName, [NotNull]Type instanceType, [CanBeNull]TReturn defaultReturnValue = default)
+        public ReflectionProperty([NotNull] string propertyName, [NotNull] Type instanceType, [CanBeNull] TReturn defaultReturnValue = default)
         {
             _propertyName = propertyName;
             _instanceType = instanceType;
@@ -41,7 +44,7 @@ namespace CSharpUtilsNETStandard.Utils.Reflection
         }
 
         [CanBeNull]
-        public TReturn GetValue([NotNull]object instance)
+        public TReturn GetValue([NotNull] object instance)
         {
             if (_property == null) return ReturnFailure("Property does not exist!");
             if (!_instanceType.IsInstanceOfType(instance)) return ReturnFailure("Instance is not of the right type!");
@@ -49,7 +52,7 @@ namespace CSharpUtilsNETStandard.Utils.Reflection
             return _property.GetValue(instance).CastOrDefaultAllowNull(_defaultReturnValue);
         }
 
-        public void SetValue([NotNull]object instance, [CanBeNull]TReturn value)
+        public void SetValue([NotNull] object instance, [CanBeNull] TReturn value)
         {
             if (_property == null)
             {
@@ -70,9 +73,9 @@ namespace CSharpUtilsNETStandard.Utils.Reflection
         }
 
         [CanBeNull]
-        private TReturn ReturnFailure([NotNull]string msg)
+        private TReturn ReturnFailure([NotNull] string msg)
         {
-            Logger.PrintWarning(string.Format("Reflection failed! (Type: {0}, Property: {1})\nReason: {2}", _instanceType.Name, _propertyName, msg));
+            Logger.PrintWarning($"Reflection failed! (Type: {_instanceType.Name}, Property: {_propertyName})\nReason: {msg}");
             return _defaultReturnValue;
         }
     }

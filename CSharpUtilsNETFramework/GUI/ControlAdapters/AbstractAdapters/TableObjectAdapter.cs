@@ -14,16 +14,17 @@ namespace CSharpUtilsNETFramework.GUI.ControlAdapters.AbstractAdapters
         [NotNull]
         protected abstract IEnumerable<int> SelectedIndexes { get; }
 
-        protected abstract void SetValuesSelected([NotNull, ItemNotNull]IEnumerable<TObject> values, bool selected);
+        protected abstract void SetValuesSelected([NotNull, ItemNotNull] IEnumerable<TObject> values, bool selected);
         public abstract void ClearSelection();
 
-        public abstract void SetColumnHeaders(params string[] headerNames);
+        public abstract void SetColumnHeaders([NotNull, ItemNotNull] params string[] headerNames);
 
         [NotNull, ItemNotNull]
         public IEnumerable<TObject> SelectedValues
         {
             get => SelectedIndexes.Select(GetValue);
-            set {
+            set
+            {
                 ClearSelection();
                 SetValuesSelected(value, true);
             }
@@ -35,21 +36,14 @@ namespace CSharpUtilsNETFramework.GUI.ControlAdapters.AbstractAdapters
         # region Constructors
 
         protected TableObjectAdapter([NotNull] TControl control, [CanBeNull] GetObjectTextHandler objectTextHandler = null)
-            : base(control, objectTextHandler)
-        {
-        }
+            : base(control, objectTextHandler) { }
 
         protected TableObjectAdapter([NotNull] TControl control, [NotNull, ItemNotNull] IEnumerable<TObject> values, [CanBeNull] GetObjectTextHandler objectTextHandler = null)
-            : base(control, values, objectTextHandler)
-        {
-        }
+            : base(control, values, objectTextHandler) { }
 
         protected TableObjectAdapter([NotNull] TControl control, [NotNull, ItemNotNull] IEnumerable<TObject> values, [NotNull] TObject selectedValue, [CanBeNull] GetObjectTextHandler objectTextHandler = null)
-            : base(control, values, selectedValue, objectTextHandler)
-        {
-        }
+            : base(control, values, selectedValue, objectTextHandler) { }
 
         # endregion
     }
-
 }

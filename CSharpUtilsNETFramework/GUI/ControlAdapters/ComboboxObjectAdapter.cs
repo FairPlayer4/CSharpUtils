@@ -20,19 +20,13 @@ namespace CSharpUtilsNETFramework.GUI.ControlAdapters
         # region Constructors
 
         public ComboboxObjectAdapter([NotNull] ComboBox control, [CanBeNull] GetObjectTextHandler objectTextHandler = null)
-            : base(control, objectTextHandler)
-        {
-        }
+            : base(control, objectTextHandler) { }
 
         public ComboboxObjectAdapter([NotNull] ComboBox control, [NotNull] IEnumerable<TObject> values, [CanBeNull] GetObjectTextHandler objectTextHandler = null)
-            : base(control, values, objectTextHandler)
-        {
-        }
+            : base(control, values, objectTextHandler) { }
 
         public ComboboxObjectAdapter([NotNull] ComboBox control, [NotNull] IEnumerable<TObject> values, [NotNull] TObject selectedValue, [CanBeNull] GetObjectTextHandler objectTextHandler = null)
-            : base(control, values, selectedValue, objectTextHandler)
-        {
-        }
+            : base(control, values, selectedValue, objectTextHandler) { }
 
         # endregion
 
@@ -84,12 +78,12 @@ namespace CSharpUtilsNETFramework.GUI.ControlAdapters
 
         protected override int GetControlItemIndex(object item) => Control.Items.IndexOf(item);
 
-        public void AddSelectedIndexChangedListener(SelectionChangedHandler selectionChangedHandler)
+        public void AddSelectedIndexChangedListener([NotNull] SelectionChangedHandler selectionChangedHandler)
         {
             Control.SelectedIndexChanged += (sender, args) => selectionChangedHandler(this, GetSelectedValue());
         }
 
-        public void AddSelectedValueChangedListener(SelectionChangedHandler selectionChangedHandler)
+        public void AddSelectedValueChangedListener([NotNull] SelectionChangedHandler selectionChangedHandler)
         {
             Control.SelectedValueChanged += (sender, args) => selectionChangedHandler(this, GetSelectedValue());
         }

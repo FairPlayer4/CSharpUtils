@@ -14,7 +14,6 @@ namespace CSharpUtilsNETStandard.Utils.Extensions.General
     [PublicAPI]
     public static class StringExtensions
     {
-
         //https://stackoverflow.com/a/17253735
         /// <summary>
         /// takes a substring between two anchor strings (or the end of the string if that anchor is null)
@@ -25,13 +24,20 @@ namespace CSharpUtilsNETStandard.Utils.Extensions.General
         /// <param name="comparison">an optional comparison for the search</param>
         /// <returns>a substring based on the search</returns>
         [NotNull]
-        public static string FindInBetweenTwoStrings([NotNull]this string fullString, [NotNull]string startString, [NotNull]string endString, StringComparison comparison = StringComparison.InvariantCulture)
+        public static string FindInBetweenTwoStrings([NotNull] this string fullString, [NotNull] string startString, [NotNull] string endString, StringComparison comparison = StringComparison.InvariantCulture)
         {
             return FindInBetweenTwoStrings(fullString, startString, endString, out bool _, comparison);
         }
 
         [NotNull]
-        public static string FindInBetweenTwoStrings([NotNull]this string fullString, [NotNull]string startString, [NotNull]string endString, out bool success, StringComparison comparison = StringComparison.InvariantCulture)
+        public static string FindInBetweenTwoStrings([NotNull] this string fullString, (string, string) startAndEndString, StringComparison comparison = StringComparison.InvariantCulture)
+        {
+            (string startString, string endString) = startAndEndString;
+            return FindInBetweenTwoStrings(fullString, startString, endString, comparison);
+        }
+
+        [NotNull]
+        public static string FindInBetweenTwoStrings([NotNull] this string fullString, [NotNull] string startString, [NotNull] string endString, out bool success, StringComparison comparison = StringComparison.InvariantCulture)
         {
             int fromLength = startString.Length;
             int startIndex = fromLength == 0 ? 0 : fullString.IndexOf(startString, comparison) + fromLength;
@@ -54,82 +60,81 @@ namespace CSharpUtilsNETStandard.Utils.Extensions.General
             return subString;
         }
 
-        public static bool EqualsInvariantIgnoreCase([CanBeNull] this string value, [CanBeNull]string other)
+        public static bool EqualsInvariantIgnoreCase([CanBeNull] this string value, [CanBeNull] string other)
         {
             return string.Equals(value, other, StringComparison.InvariantCultureIgnoreCase);
         }
 
-        public static bool EqualsIgnoreCase([CanBeNull] this string value, [CanBeNull]string other)
+        public static bool EqualsIgnoreCase([CanBeNull] this string value, [CanBeNull] string other)
         {
             return string.Equals(value, other, StringComparison.OrdinalIgnoreCase);
         }
 
-        public static bool ContainsIgnoreCase([NotNull] this string value, [NotNull]string other)
+        public static bool ContainsIgnoreCase([NotNull] this string value, [NotNull] string other)
         {
             return value.IndexOf(other, StringComparison.OrdinalIgnoreCase) >= 0;
         }
 
-        public static bool MatchesFilter([NotNull] this string value, [NotNull]string filter)
+        public static bool MatchesFilter([NotNull] this string value, [NotNull] string filter)
         {
             return value.ContainsIgnoreCase(filter);
         }
 
-        [NotNull]
-        public static string FindInBetweenTwoStrings([NotNull] this string fullString, (string, string) startAndEndString, StringComparison comparison = StringComparison.InvariantCulture, bool returnEmptyIfOneOfTheStringsIsNotFound = true)
-        {
-            return FindInBetweenTwoStrings(fullString, startAndEndString.Item1, startAndEndString.Item2, comparison);
-        }
         [CanBeNull]
-        public static (string, string)? StartsWithAndEndWithAny([NotNull]this string value, [NotNull]params (string, string)?[] startsWithAndEndWithTuples)
+        public static (string, string)? StartsWithAndEndWithAny([NotNull] this string value, [NotNull] params (string, string)?[] startsWithAndEndWithTuples)
         {
             return startsWithAndEndWithTuples.FirstOrDefault(tuple => tuple.HasValue && value.StartsAndEndsWith(tuple.Value));
         }
 
-        public static bool StartsAndEndsWith([NotNull]this string value, (string, string) startAndEnd)
+        public static bool StartsAndEndsWith([NotNull] this string value, (string, string) startAndEnd)
         {
-            return value.StartsWithOrdinal(startAndEnd.Item1) && value.EndsWithOrdinal(startAndEnd.Item2);
+            (string startString, string endString) = startAndEnd;
+            return value.StartsWithOrdinal(startString) && value.EndsWithOrdinal(endString);
         }
 
-        public static bool StartsAndEndsWith([NotNull]this string value, [NotNull]string startAndEnd)
+        public static bool StartsAndEndsWith([NotNull] this string value, [NotNull] string startAndEnd)
         {
             return value.StartsWithOrdinal(startAndEnd) && value.EndsWithOrdinal(startAndEnd);
         }
 
-        public static bool StartsWithOrdinal([NotNull]this string value, [NotNull]string start)
+        public static bool StartsWithOrdinal([NotNull] this string value, [NotNull] string start)
         {
             return value.StartsWith(start, StringComparison.Ordinal);
         }
 
-        public static bool EndsWithOrdinal([NotNull]this string value, [NotNull]string end)
+        public static bool EndsWithOrdinal([NotNull] this string value, [NotNull] string end)
         {
             return value.EndsWith(end, StringComparison.Ordinal);
         }
+
         [NotNull]
-        public static string RemoveMultipleSpaces([NotNull]this string value)
+        public static string RemoveMultipleSpaces([NotNull] this string value)
         {
             return string.Join(" ", value.Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries));
         }
+
         [NotNull]
-        public static string ReplaceAllSpacesNewLineTabsEtcWithSingleSpace([NotNull]this string value)
+        public static string ReplaceAllSpacesNewLineTabsEtcWithSingleSpace([NotNull] this string value)
         {
             return Regex.Replace(value, @"\s+", " ");
         }
+
         [NotNull]
-        public static string TrimStartOnce([NotNull]this string target, [NotNull]string trimString)
+        public static string TrimStartOnce([NotNull] this string target, [NotNull] string trimString)
         {
             return target.StartsWith(trimString, StringComparison.Ordinal) ? target.Substring(trimString.Length) : target;
         }
 
         //https://stackoverflow.com/a/1857525
         [NotNull]
-        public static string GetUntilOrEmpty([NotNull]this string text, [NotNull]string stopAt)
+        public static string GetUntilOrEmpty([NotNull] this string text, [NotNull] string stopAt)
         {
             int charLocation = text.IndexOf(stopAt, StringComparison.Ordinal);
             return charLocation > 0 ? text.Substring(0, charLocation) : "";
         }
 
         [NotNull]
-        public static string GetPrintString([CanBeNull]this string value, [NotNull]string onNull, [NotNull]string onEmptyOrWhitespace)
+        public static string GetPrintString([CanBeNull] this string value, [NotNull] string onNull, [NotNull] string onEmptyOrWhitespace)
         {
             if (value == null) return onNull;
             if (string.IsNullOrWhiteSpace(value)) return onEmptyOrWhitespace;
@@ -137,16 +142,16 @@ namespace CSharpUtilsNETStandard.Utils.Extensions.General
         }
 
         [SourceTemplate]
-        public static bool IsNullOrEmpty([CanBeNull]this string value) => string.IsNullOrEmpty(value);
+        public static bool IsNullOrEmpty([CanBeNull] this string value) => string.IsNullOrEmpty(value);
 
         [SourceTemplate]
-        public static bool IsNullOrWhiteSpace([CanBeNull]this string value) => string.IsNullOrWhiteSpace(value);
+        public static bool IsNullOrWhiteSpace([CanBeNull] this string value) => string.IsNullOrWhiteSpace(value);
 
         [NotNull]
-        public static string ToStringFromCharArray([NotNull]this char[] charArray) => new string(charArray);
+        public static string ToStringFromCharArray([NotNull] this char[] charArray) => new string(charArray);
 
         [NotNull]
-        public static string ToStringFromChars([NotNull]this IEnumerable<char> chars) => chars.ToArray().ToStringFromCharArray();
+        public static string ToStringFromChars([NotNull] this IEnumerable<char> chars) => chars.ToArray().ToStringFromCharArray();
 
         [NotNull]
         public static string RemoveWhiteSpaceCharacters([NotNull] this string input)

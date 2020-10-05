@@ -24,8 +24,10 @@ namespace CSharpUtilsNETFramework.GUI.ControlAdapters.AbstractAdapters
 
         [NotNull]
         public TControl Control { get; private set; }
+
         [NotNull]
         public GetObjectTextHandler ObjectTextHandler { get; private set; }
+
         [NotNull]
         public List<TObject> LoadedValues => ObjectControlItemBiMap.Keys.ToList();
 
@@ -33,39 +35,42 @@ namespace CSharpUtilsNETFramework.GUI.ControlAdapters.AbstractAdapters
         public ICollection<TObject> LoadedValuesAsCollection => ObjectControlItemBiMap.Keys;
         //TODO protected abstract bool Initialized { get; }
 
+        [CanBeNull]
         public OnAfterValuesLoadedEvent OnAfterValuesLoaded;
 
         [NotNull]
         private readonly BiDictionary<TObject, TControlItem> ObjectControlItemBiMap = new BiDictionary<TObject, TControlItem>();
 
-        protected ControlObjectAdapter([NotNull]TControl control, [CanBeNull] GetObjectTextHandler objectTextHandler = null)
+        protected ControlObjectAdapter([NotNull] TControl control, [CanBeNull] GetObjectTextHandler objectTextHandler = null)
         {
             Control = control;
             ObjectTextHandler = objectTextHandler ?? CreateDefaultObjectTextHandler;
         }
 
-        protected ControlObjectAdapter([NotNull]TControl control, [NotNull, ItemNotNull] IEnumerable<TObject> values, [CanBeNull] GetObjectTextHandler objectTextHandler = null)
+        protected ControlObjectAdapter([NotNull] TControl control, [NotNull, ItemNotNull] IEnumerable<TObject> values, [CanBeNull] GetObjectTextHandler objectTextHandler = null)
             : this(control, objectTextHandler)
         {
             LoadValues(values);
         }
 
-        protected ControlObjectAdapter([NotNull]TControl control, [NotNull, ItemNotNull] IEnumerable<TObject> values, [NotNull] TObject selectedValue, [CanBeNull] GetObjectTextHandler objectTextHandler = null)
+        protected ControlObjectAdapter([NotNull] TControl control, [NotNull, ItemNotNull] IEnumerable<TObject> values, [NotNull] TObject selectedValue, [CanBeNull] GetObjectTextHandler objectTextHandler = null)
             : this(control, objectTextHandler)
         {
             LoadValues(values, selectedValue);
         }
 
         [NotNull]
-        protected abstract TObjectText CreateDefaultObjectTextHandler([NotNull]TObject obj);
+        protected abstract TObjectText CreateDefaultObjectTextHandler([NotNull] TObject obj);
 
         #region Load Values
-        [NotNull]
-        protected abstract Dictionary<TObject, TControlItem> LoadValuesToControl([NotNull, ItemNotNull]IEnumerable<GroupedObject<TObject>> values);
-        [NotNull]
-        protected abstract Dictionary<TObject, TControlItem> LoadValuesToControl([NotNull, ItemNotNull]IEnumerable<TObject> values);
 
-        public void LoadValues([NotNull, ItemNotNull]IEnumerable<TObject> values)
+        [NotNull]
+        protected abstract Dictionary<TObject, TControlItem> LoadValuesToControl([NotNull, ItemNotNull] IEnumerable<GroupedObject<TObject>> values);
+
+        [NotNull]
+        protected abstract Dictionary<TObject, TControlItem> LoadValuesToControl([NotNull, ItemNotNull] IEnumerable<TObject> values);
+
+        public void LoadValues([NotNull, ItemNotNull] IEnumerable<TObject> values)
         {
             ObjectControlItemBiMap.Clear();
             ClearControlItems();
@@ -73,7 +78,7 @@ namespace CSharpUtilsNETFramework.GUI.ControlAdapters.AbstractAdapters
             UpdateBiMap(valueToItemMap);
         }
 
-        public void LoadValues([NotNull, ItemNotNull]IEnumerable<GroupedObject<TObject>> values)
+        public void LoadValues([NotNull, ItemNotNull] IEnumerable<GroupedObject<TObject>> values)
         {
             ObjectControlItemBiMap.Clear();
             ClearControlItems();
@@ -88,7 +93,7 @@ namespace CSharpUtilsNETFramework.GUI.ControlAdapters.AbstractAdapters
             OnAfterValuesLoaded?.Invoke(this);
         }
 
-        public void LoadValues([NotNull, ItemNotNull]IEnumerable<TObject> values, [NotNull] TObject selectedValue)
+        public void LoadValues([NotNull, ItemNotNull] IEnumerable<TObject> values, [NotNull] TObject selectedValue)
         {
             LoadValues(values);
             SetSelectedValue(selectedValue);
@@ -128,12 +133,12 @@ namespace CSharpUtilsNETFramework.GUI.ControlAdapters.AbstractAdapters
         public IEnumerable<TObject> GetValues([NotNull] IEnumerable<TControlItem> controlItems) => controlItems.Select(GetValue).ItemNotNull();
 
         [CanBeNull]
-        public TControlItem GetControlItem([NotNull]TObject obj) => ObjectControlItemBiMap[obj];
+        public TControlItem GetControlItem([NotNull] TObject obj) => ObjectControlItemBiMap[obj];
 
         [CanBeNull]
         public abstract TControlItem GetControlItem(int index);
 
-        protected abstract int GetControlItemIndex([NotNull]TControlItem item);
+        protected abstract int GetControlItemIndex([NotNull] TControlItem item);
 
         private int GetControlItemIndex([NotNull] TObject valueAssociatedToControlItem)
         {
@@ -186,21 +191,24 @@ namespace CSharpUtilsNETFramework.GUI.ControlAdapters.AbstractAdapters
     public sealed class GroupedObject<TObject>
     {
         public const string DefaultGroupString = "-?-nogroup-?-";
+
         [CanBeNull]
         public readonly object Tag;
+
         [NotNull]
         public readonly string GroupName;
+
         [NotNull, ItemNotNull]
         public readonly IReadOnlyList<TObject> GroupObjects;
 
-        public GroupedObject([NotNull, ItemNotNull]IReadOnlyList<TObject> groupObjects, [CanBeNull] object tag = null)
+        public GroupedObject([NotNull, ItemNotNull] IReadOnlyList<TObject> groupObjects, [CanBeNull] object tag = null)
         {
             GroupName = DefaultGroupString;
             GroupObjects = groupObjects;
             Tag = tag;
         }
 
-        public GroupedObject([NotNull]string groupName, [NotNull, ItemNotNull]IReadOnlyList<TObject> groupObjects, [CanBeNull] object tag = null)
+        public GroupedObject([NotNull] string groupName, [NotNull, ItemNotNull] IReadOnlyList<TObject> groupObjects, [CanBeNull] object tag = null)
         {
             GroupName = groupName;
             GroupObjects = groupObjects;

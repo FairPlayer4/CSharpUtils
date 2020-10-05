@@ -33,17 +33,20 @@ namespace CSharpUtilsNETFramework.GUI.GenericListSelectionControl
     [PublicAPI]
     public sealed partial class ListSelectionControl : UserControl
     {
-
         #region Events
 
         [CanBeNull]
         public event ListViewItemSelectionChangedEventHandler ItemAfterSelectionChanged;
+
         [CanBeNull]
         public event ItemCheckEventHandler ItemBeforeCheckChanged;
+
         [CanBeNull]
         public event ItemCheckedEventHandler ItemAfterCheckChanged;
+
         [CanBeNull]
         public event EventHandler NavigateClick;
+
         [CanBeNull]
         public event EventHandler OptionsClick;
 
@@ -55,6 +58,7 @@ namespace CSharpUtilsNETFramework.GUI.GenericListSelectionControl
 
         public const int OptionsButtonColumn = 2;
 
+        [NotNull]
         public ListView ListView => listView;
 
         public bool IsNavigable
@@ -96,12 +100,14 @@ namespace CSharpUtilsNETFramework.GUI.GenericListSelectionControl
                 Realign();
             }
         }
+
         [CanBeNull]
         public string Description
         {
             get => DescriptionLabel.Text;
             set => DescriptionLabel.Text = value;
         }
+
         [CanBeNull]
         public string Title
         {
@@ -151,6 +157,7 @@ namespace CSharpUtilsNETFramework.GUI.GenericListSelectionControl
             }
         }
 
+        [NotNull]
         private readonly Stack<ListViewEventReaction> EventReactionStack = new Stack<ListViewEventReaction>();
 
         public void SetListViewEventReaction(ListViewEventReaction eventReaction)
@@ -181,8 +188,9 @@ namespace CSharpUtilsNETFramework.GUI.GenericListSelectionControl
             }
         }
 
-        [Browsable(false), CanBeNull]
+        [CanBeNull, Browsable(false)]
         public Func<bool> IgnoreAllListViewUserEventsFunction { private get; set; }
+
         [Browsable(false)]
         public bool IgnoreAllListViewUserEvents => CurrentListViewEventReaction == ListViewEventReaction.IgnoreAllListViewUserEvents;
 
@@ -277,7 +285,7 @@ namespace CSharpUtilsNETFramework.GUI.GenericListSelectionControl
 
         private readonly bool IsInDesignerMode = Process.GetCurrentProcess().ProcessName == "devenv";
 
-        protected override void OnLoad(EventArgs e)
+        protected override void OnLoad([CanBeNull] EventArgs e)
         {
             base.OnLoad(e);
             Realign();
@@ -289,7 +297,7 @@ namespace CSharpUtilsNETFramework.GUI.GenericListSelectionControl
             if (parent != null) parent.ResizeEnd += (sender, args) => AutoSizeColumns();
         }
 
-        private void ColumnsContextMenuStrip_Opening(object sender, CancelEventArgs e)
+        private void ColumnsContextMenuStrip_Opening([CanBeNull] object sender, [NotNull] CancelEventArgs e)
         {
             Point locationOnScreen = listView.PointToScreen(new Point(0, 0));
 
@@ -299,31 +307,31 @@ namespace CSharpUtilsNETFramework.GUI.GenericListSelectionControl
             if (relativeMousePosition.Y > 23) e.Cancel = true;
         }
 
-        private void ListView_ItemAfterSelectionChanged(object sender, ListViewItemSelectionChangedEventArgs e)
+        private void ListView_ItemAfterSelectionChanged([CanBeNull] object sender, [CanBeNull] ListViewItemSelectionChangedEventArgs e)
         {
             if (IgnoreSelectionEvents) return;
             ItemAfterSelectionChanged?.Invoke(sender, e);
         }
 
-        private void ListView_ItemBeforeCheckChanged(object sender, ItemCheckEventArgs e)
+        private void ListView_ItemBeforeCheckChanged([CanBeNull] object sender, [NotNull] ItemCheckEventArgs e)
         {
             if (DisableChecking && EnableMultiselection) e.NewValue = e.CurrentValue;
             if (IgnoreCheckEvents) return;
             ItemBeforeCheckChanged?.Invoke(sender, e);
         }
 
-        private void ListView_ItemAfterCheckChanged(object sender, ItemCheckedEventArgs e)
+        private void ListView_ItemAfterCheckChanged([CanBeNull] object sender, [CanBeNull] ItemCheckedEventArgs e)
         {
             if (IgnoreCheckEvents) return;
             ItemAfterCheckChanged?.Invoke(sender, e);
         }
 
-        private void OptionsButton_Click(object sender, EventArgs e)
+        private void OptionsButton_Click([CanBeNull] object sender, [CanBeNull] EventArgs e)
         {
             OptionsClick?.Invoke(sender, e);
         }
 
-        private void NavigateButton_Click(object sender, EventArgs e)
+        private void NavigateButton_Click([CanBeNull] object sender, [CanBeNull] EventArgs e)
         {
             NavigateClick?.Invoke(sender, e);
         }
@@ -375,6 +383,7 @@ namespace CSharpUtilsNETFramework.GUI.GenericListSelectionControl
         private int ManualCheckBoxColumnSize = -1;
 
         private bool AutoSizeAfterDrawingColumns = true;
+
         [NotNull]
         private string _checkBoxColumnName = string.Empty;
 
@@ -391,7 +400,7 @@ namespace CSharpUtilsNETFramework.GUI.GenericListSelectionControl
             }
         }
 
-        private void ListView_DrawColumnHeader(object sender, [NotNull] DrawListViewColumnHeaderEventArgs e)
+        private void ListView_DrawColumnHeader([CanBeNull] object sender, [NotNull] DrawListViewColumnHeaderEventArgs e)
         {
             if (e.ColumnIndex == 0 && EnableMultiselection && EnableCheckBoxes && !IgnoreAllListViewUserEvents)
             {
@@ -400,8 +409,13 @@ namespace CSharpUtilsNETFramework.GUI.GenericListSelectionControl
                 {
                     Size textSize = TextRenderer.MeasureText(CheckBoxColumnName, listView.Font);
                     ManualCheckBoxColumnSize = 20 + textSize.Width; //Check with Scaling
-                    CheckBoxRenderer.DrawCheckBox(e.Graphics, new Point(e.Bounds.Left + 4, e.Bounds.Top + 5), new Rectangle(e.Bounds.Left + 20, e.Bounds.Top + 5, textSize.Width, textSize.Height), CheckBoxColumnName, listView.Font, false, ColumnHeaderCheckBoxState);
-
+                    CheckBoxRenderer.DrawCheckBox(e.Graphics,
+                                                  new Point(e.Bounds.Left + 4, e.Bounds.Top + 5),
+                                                  new Rectangle(e.Bounds.Left + 20, e.Bounds.Top + 5, textSize.Width, textSize.Height),
+                                                  CheckBoxColumnName,
+                                                  listView.Font,
+                                                  false,
+                                                  ColumnHeaderCheckBoxState);
                 }
                 else
                 {
@@ -421,17 +435,17 @@ namespace CSharpUtilsNETFramework.GUI.GenericListSelectionControl
             }
         }
 
-        private void ListView_DrawItem(object sender, [NotNull] DrawListViewItemEventArgs e)
+        private void ListView_DrawItem([CanBeNull] object sender, [NotNull] DrawListViewItemEventArgs e)
         {
             e.DrawDefault = true;
         }
 
-        private void ListView_DrawSubItem(object sender, [NotNull] DrawListViewSubItemEventArgs e)
+        private void ListView_DrawSubItem([CanBeNull] object sender, [NotNull] DrawListViewSubItemEventArgs e)
         {
             e.DrawDefault = true;
         }
 
-        private void ListView_ColumnClick(object sender, [NotNull] ColumnClickEventArgs e)
+        private void ListView_ColumnClick([CanBeNull] object sender, [NotNull] ColumnClickEventArgs e)
         {
             if (e.Column != 0 || !EnableCheckBoxes || !EnableMultiselection || IgnoreAllListViewUserEvents) return;
             ColumnHeaderCheckBoxState = GetNextColumnHeaderCheckBoxState();
@@ -439,12 +453,12 @@ namespace CSharpUtilsNETFramework.GUI.GenericListSelectionControl
 
         private bool DisableChecking { get; set; }
 
-        private void ListView_KeyDown(object sender, [NotNull] KeyEventArgs e)
+        private void ListView_KeyDown([CanBeNull] object sender, [NotNull] KeyEventArgs e)
         {
             if (e.KeyCode == Keys.ShiftKey || e.KeyCode == Keys.ControlKey) DisableChecking = true;
         }
 
-        private void ListView_KeyUp(object sender, [NotNull] KeyEventArgs e)
+        private void ListView_KeyUp([CanBeNull] object sender, [NotNull] KeyEventArgs e)
         {
             if (e.KeyCode == Keys.ShiftKey || e.KeyCode == Keys.ControlKey) DisableChecking = false;
         }
@@ -474,10 +488,9 @@ namespace CSharpUtilsNETFramework.GUI.GenericListSelectionControl
             listView.AutoSizeColumns(true, manualColumnSizes, ColumnContentPriorities);
         }
 
-        private void ListView_ColumnWidthChanging(object sender, [NotNull] ColumnWidthChangingEventArgs e)
+        private void ListView_ColumnWidthChanging([CanBeNull] object sender, [NotNull] ColumnWidthChangingEventArgs e)
         {
             UserAdjustedColumns.Add(e.ColumnIndex);
         }
-
     }
 }

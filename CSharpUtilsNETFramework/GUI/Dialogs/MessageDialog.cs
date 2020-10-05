@@ -48,12 +48,14 @@ namespace CSharpUtilsNETFramework.GUI.Dialogs
 
         #region Properties
 
+        [NotNull]
         public string MainText
         {
             get => labelMainText.Text;
             set => labelMainText.Text = value;
         }
 
+        [NotNull]
         public string Title
         {
             get => Text;
@@ -96,8 +98,10 @@ namespace CSharpUtilsNETFramework.GUI.Dialogs
             }
         }
 
+        [CanBeNull]
         private Image _customIcon;
 
+        [CanBeNull]
         public Image CustomIcon
         {
             get => _customIcon;
@@ -108,8 +112,10 @@ namespace CSharpUtilsNETFramework.GUI.Dialogs
             }
         }
 
+        [CanBeNull]
         private string _toolTipYesOk;
 
+        [CanBeNull]
         public string ToolTipYesOk
         {
             get => _toolTipYesOk;
@@ -120,8 +126,10 @@ namespace CSharpUtilsNETFramework.GUI.Dialogs
             }
         }
 
+        [CanBeNull]
         private string _toolTipNo;
 
+        [CanBeNull]
         public string ToolTipNo
         {
             get => _toolTipNo;
@@ -132,8 +140,10 @@ namespace CSharpUtilsNETFramework.GUI.Dialogs
             }
         }
 
+        [CanBeNull]
         private string _toolTipCancelClose;
 
+        [CanBeNull]
         public string ToolTipCancelClose
         {
             get => _toolTipCancelClose;
@@ -152,10 +162,13 @@ namespace CSharpUtilsNETFramework.GUI.Dialogs
         // is needed to handle the closing button of windows forms [X]
         public bool ButtonYesNoOkPressed { get; private set; }
 
+        [CanBeNull]
         public Action ActionYesOk { get; set; }
 
+        [CanBeNull]
         public Action ActionNo { get; set; }
 
+        [CanBeNull]
         public Func<bool> FuncAllowCancelClose { get; set; }
 
         private bool _ready;
@@ -172,7 +185,7 @@ namespace CSharpUtilsNETFramework.GUI.Dialogs
             InitializeComponent();
         }
 
-        public MessageDialog(string mainText) : this()
+        public MessageDialog([NotNull] string mainText) : this()
         {
             MainText = mainText;
             SelectedButtons = Buttons.Ok;
@@ -180,33 +193,36 @@ namespace CSharpUtilsNETFramework.GUI.Dialogs
             SelectedIcon = IconBox.None;
         }
 
-        public MessageDialog(string mainText, string title) : this(mainText)
+        public MessageDialog([NotNull] string mainText, [NotNull] string title) : this(mainText)
         {
             Title = title;
         }
 
-        public MessageDialog(string mainText, string title, Buttons buttons) : this(mainText, title)
+        public MessageDialog([NotNull] string mainText, [NotNull] string title, Buttons buttons) : this(mainText, title)
         {
             SelectedButtons = buttons;
             SelectedDefaultButton = _selectedButtons == Buttons.Close ? DefaultButton.CancelClose : DefaultButton.YesOk;
         }
 
-        public MessageDialog(string mainText, string title, Buttons buttons, IconBox icon) : this(mainText, title, buttons)
+        public MessageDialog([NotNull] string mainText, [NotNull] string title, Buttons buttons, IconBox icon) : this(mainText, title, buttons)
         {
             SelectedIcon = icon;
         }
 
-        public MessageDialog(string mainText, string title, Buttons buttons, IconBox icon, DefaultButton defaultButton) : this(mainText, title, buttons, icon)
+        public MessageDialog([NotNull] string mainText, [NotNull] string title, Buttons buttons, IconBox icon, DefaultButton defaultButton) : this(mainText, title, buttons, icon)
         {
             SelectedDefaultButton = defaultButton;
         }
 
-        public MessageDialog(string mainText, string title, Buttons buttons, Image customIcon, DefaultButton defaultButton) : this(title, mainText, buttons, IconBox.Custom, defaultButton)
+        public MessageDialog([NotNull] string mainText, [NotNull] string title, Buttons buttons, [CanBeNull] Image customIcon, DefaultButton defaultButton) : this(title, mainText, buttons, IconBox.Custom, defaultButton)
         {
             CustomIcon = customIcon;
         }
 
-        public MessageDialog(string mainText, string title, Buttons buttons, IconBox icon, DefaultButton defaultButton, [CanBeNull] Image customIcon = null, bool preventClosing = false, [CanBeNull] Action actionYesOk = null, [CanBeNull] Action actionNo = null, [CanBeNull] Func<bool> funcAllowCancelClose = null) : this(title, mainText, buttons, icon, defaultButton)
+        public MessageDialog(
+            [NotNull] string mainText, [NotNull] string title, Buttons buttons, IconBox icon, DefaultButton defaultButton,
+            [CanBeNull] Image customIcon = null, bool preventClosing = false, [CanBeNull] Action actionYesOk = null, [CanBeNull] Action actionNo = null, [CanBeNull] Func<bool> funcAllowCancelClose = null
+        ) : this(title, mainText, buttons, icon, defaultButton)
         {
             CustomIcon = customIcon;
             PreventClosing = preventClosing;
@@ -219,7 +235,7 @@ namespace CSharpUtilsNETFramework.GUI.Dialogs
 
         #region Show Methods
 
-        public static DialogResult Show(string mainText)
+        public static DialogResult Show([NotNull] string mainText)
         {
             using (MessageDialog dialog = new MessageDialog(mainText))
             {
@@ -227,7 +243,7 @@ namespace CSharpUtilsNETFramework.GUI.Dialogs
             }
         }
 
-        public static DialogResult Show(string mainText, string title)
+        public static DialogResult Show([NotNull] string mainText, [NotNull] string title)
         {
             using (MessageDialog dialog = new MessageDialog(mainText, title))
             {
@@ -235,7 +251,7 @@ namespace CSharpUtilsNETFramework.GUI.Dialogs
             }
         }
 
-        public static DialogResult Show(string mainText, string title, Buttons buttons)
+        public static DialogResult Show([NotNull] string mainText, [NotNull] string title, Buttons buttons)
         {
             using (MessageDialog dialog = new MessageDialog(mainText, title, buttons))
             {
@@ -243,7 +259,7 @@ namespace CSharpUtilsNETFramework.GUI.Dialogs
             }
         }
 
-        public static DialogResult Show(string mainText, string title, Buttons buttons, IconBox icon)
+        public static DialogResult Show([NotNull] string mainText, [NotNull] string title, Buttons buttons, IconBox icon)
         {
             using (MessageDialog dialog = new MessageDialog(mainText, title, buttons, icon))
             {
@@ -251,7 +267,7 @@ namespace CSharpUtilsNETFramework.GUI.Dialogs
             }
         }
 
-        public static DialogResult Show(string mainText, string title, Buttons buttons, IconBox icon, DefaultButton defaultButton)
+        public static DialogResult Show([NotNull] string mainText, [NotNull] string title, Buttons buttons, IconBox icon, DefaultButton defaultButton)
         {
             using (MessageDialog dialog = new MessageDialog(mainText, title, buttons, icon, defaultButton))
             {
@@ -259,7 +275,7 @@ namespace CSharpUtilsNETFramework.GUI.Dialogs
             }
         }
 
-        public static DialogResult Show(IWin32Window owner, string mainText)
+        public static DialogResult Show([CanBeNull] IWin32Window owner, [NotNull] string mainText)
         {
             using (MessageDialog dialog = new MessageDialog(mainText))
             {
@@ -267,7 +283,7 @@ namespace CSharpUtilsNETFramework.GUI.Dialogs
             }
         }
 
-        public static DialogResult Show(IWin32Window owner, string mainText, string title)
+        public static DialogResult Show([CanBeNull] IWin32Window owner, [NotNull] string mainText, [NotNull] string title)
         {
             using (MessageDialog dialog = new MessageDialog(mainText, title))
             {
@@ -275,7 +291,7 @@ namespace CSharpUtilsNETFramework.GUI.Dialogs
             }
         }
 
-        public static DialogResult Show(IWin32Window owner, string mainText, string title, Buttons buttons)
+        public static DialogResult Show([CanBeNull] IWin32Window owner, [NotNull] string mainText, [NotNull] string title, Buttons buttons)
         {
             using (MessageDialog dialog = new MessageDialog(mainText, title, buttons))
             {
@@ -283,7 +299,7 @@ namespace CSharpUtilsNETFramework.GUI.Dialogs
             }
         }
 
-        public static DialogResult Show(IWin32Window owner, string mainText, string title, Buttons buttons, IconBox icon)
+        public static DialogResult Show([CanBeNull] IWin32Window owner, [NotNull] string mainText, [NotNull] string title, Buttons buttons, IconBox icon)
         {
             using (MessageDialog dialog = new MessageDialog(mainText, title, buttons, icon))
             {
@@ -291,7 +307,10 @@ namespace CSharpUtilsNETFramework.GUI.Dialogs
             }
         }
 
-        public static DialogResult Show(IWin32Window owner, string mainText, string title, Buttons buttons, IconBox icon, DefaultButton defaultButton)
+        public static DialogResult Show(
+            [CanBeNull] IWin32Window owner, [NotNull] string mainText, [NotNull] string title, Buttons buttons, IconBox icon,
+            DefaultButton defaultButton
+        )
         {
             using (MessageDialog dialog = new MessageDialog(mainText, title, buttons, icon, defaultButton))
             {
@@ -317,7 +336,7 @@ namespace CSharpUtilsNETFramework.GUI.Dialogs
 
         #region Event Handling
 
-        protected override void OnLoad(EventArgs e)
+        protected override void OnLoad([CanBeNull] EventArgs e)
         {
             base.OnLoad(e);
             _ready = true;
@@ -332,13 +351,11 @@ namespace CSharpUtilsNETFramework.GUI.Dialogs
             base.OnClosing(e);
             if (ButtonYesNoOkPressed) return;
             if (FuncAllowCancelClose != null)
-            {
                 e.Cancel = !FuncAllowCancelClose();
-            }
             else e.Cancel = PreventClosing;
         }
 
-        private void ButtonYesOK_Click(object sender, EventArgs e)
+        private void ButtonYesOK_Click([CanBeNull] object sender, [CanBeNull] EventArgs e)
         {
             ButtonYesNoOkPressed = true;
             ActionYesOk?.Invoke();
@@ -349,7 +366,7 @@ namespace CSharpUtilsNETFramework.GUI.Dialogs
             Close();
         }
 
-        private void ButtonNo_Click(object sender, EventArgs e)
+        private void ButtonNo_Click([CanBeNull] object sender, [CanBeNull] EventArgs e)
         {
             ButtonYesNoOkPressed = true;
             ActionNo?.Invoke();
@@ -357,7 +374,7 @@ namespace CSharpUtilsNETFramework.GUI.Dialogs
             Close();
         }
 
-        private void ButtonCancelClose_Click(object sender, EventArgs e)
+        private void ButtonCancelClose_Click([CanBeNull] object sender, [CanBeNull] EventArgs e)
         {
             DialogResult = DialogResult.Cancel;
             Close();
@@ -478,6 +495,5 @@ namespace CSharpUtilsNETFramework.GUI.Dialogs
         }
 
         #endregion
-
     }
 }

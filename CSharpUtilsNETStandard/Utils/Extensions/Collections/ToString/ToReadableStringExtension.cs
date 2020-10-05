@@ -12,7 +12,7 @@ using JetBrains.Annotations;
 namespace CSharpUtilsNETStandard.Utils.Extensions.Collections.ToString
 {
     [CanBeNull]
-    public delegate string ToStringDelegate<in T>([CanBeNull]T value);
+    public delegate string ToStringDelegate<in T>([CanBeNull] T value);
 
     [PublicAPI]
     public static class ToReadableStringExtension
@@ -36,14 +36,19 @@ namespace CSharpUtilsNETStandard.Utils.Extensions.Collections.ToString
         /// <param name="enumerable">An IEnumerable.</param>
         /// <param name="nestedEnumerablePrintFormatsQueue">A queue that provides formatting <see cref="EnumerablePrintFormat"/> for nested enumerables. For each enumerable a dequeue is performed and if the queue is null or empty the default format will be used.</param>
         /// <param name="typeToStringMethod">A dictionary that maps types to functions. These functions will be used on mapped types instead of ToString(). This allows to define a custom ToString() methods for certain types that do not have a suitable (too little or too much information) ToString() method.</param>
-        /// <returns></returns>
+        /// <returns>A readable version of the enumerable displaying the content</returns>
         [NotNull]
-        public static string ToReadableStringNested([CanBeNull, ItemCanBeNull]this IEnumerable enumerable, [CanBeNull, ItemCanBeNull]Queue<EnumerablePrintFormat> nestedEnumerablePrintFormatsQueue = null, [CanBeNull]Dictionary<Type, ToStringDelegate<object>> typeToStringMethod = null)
+        public static string ToReadableStringNested(
+            [CanBeNull, ItemCanBeNull] this IEnumerable enumerable,
+            [CanBeNull, ItemCanBeNull]Queue<EnumerablePrintFormat> nestedEnumerablePrintFormatsQueue = null,
+            [CanBeNull] Dictionary<Type, ToStringDelegate<object>> typeToStringMethod = null
+        )
         {
             if (enumerable == null) return NullString;
             //If ToString() is overridden then use that (e.g. the class String implements IEnumerable but also overrides the ToString() method from Object)
-            if (enumerable.GetType().ToString() != enumerable.ToString()) return enumerable.ToString();
-            if (nestedEnumerablePrintFormatsQueue == null) nestedEnumerablePrintFormatsQueue = new Queue<EnumerablePrintFormat>();
+            string enumerableToString = enumerable.ToString();
+            if (enumerable.GetType().ToString() != enumerableToString && enumerableToString != null) return enumerableToString;
+            nestedEnumerablePrintFormatsQueue = nestedEnumerablePrintFormatsQueue ?? new Queue<EnumerablePrintFormat>();
             if (nestedEnumerablePrintFormatsQueue.Count == 0) nestedEnumerablePrintFormatsQueue.Enqueue(new EnumerablePrintFormat());
             EnumerablePrintFormat printFormat = nestedEnumerablePrintFormatsQueue.Dequeue() ?? new EnumerablePrintFormat();
             string multiLineString = "";
@@ -55,23 +60,20 @@ namespace CSharpUtilsNETStandard.Utils.Extensions.Collections.ToString
             if (enumerable is IDictionary dictionary)
                 foreach (DictionaryEntry keyValue in dictionary)
                 {
-                    IEnumerable keyEnumerable = keyValue.Key as IEnumerable;
-                    IEnumerable valueEnumerable = keyValue.Value as IEnumerable;
                     result.AppendFormat("{0}{1}{2}{3}{4}",
-                        keyEnumerable != null ? keyEnumerable.ToReadableStringNested() : typeToStringMethod.ToStringCustom(keyValue.Key),
-                        printFormat.KeyValueDelimiter,
-                        valueEnumerable != null ? valueEnumerable.ToReadableStringNested(new Queue<EnumerablePrintFormat>(nestedEnumerablePrintFormatsQueue), typeToStringMethod) : typeToStringMethod.ToStringCustom(keyValue.Value),
-                        printFormat.ElementDelimiter,
-                        multiLineString);
+                                        keyValue.Key is IEnumerable keyEnumerable ? keyEnumerable.ToReadableStringNested() : typeToStringMethod.ToStringCustom(keyValue.Key),
+                                        printFormat.KeyValueDelimiter,
+                                        keyValue.Value is IEnumerable valueEnumerable ? valueEnumerable.ToReadableStringNested(new Queue<EnumerablePrintFormat>(nestedEnumerablePrintFormatsQueue), typeToStringMethod) : typeToStringMethod.ToStringCustom(keyValue.Value),
+                                        printFormat.ElementDelimiter,
+                                        multiLineString);
                 }
             else
-                foreach (var element in enumerable)
+                foreach (object element in enumerable)
                 {
-                    IEnumerable elementEnumerable = element as IEnumerable;
                     result.AppendFormat("{0}{1}{2}",
-                        elementEnumerable != null ? elementEnumerable.ToReadableStringNested(new Queue<EnumerablePrintFormat>(nestedEnumerablePrintFormatsQueue), typeToStringMethod) : typeToStringMethod.ToStringCustom(element),
-                        printFormat.ElementDelimiter,
-                        multiLineString);
+                                        element is IEnumerable elementEnumerable ? elementEnumerable.ToReadableStringNested(new Queue<EnumerablePrintFormat>(nestedEnumerablePrintFormatsQueue), typeToStringMethod) : typeToStringMethod.ToStringCustom(element),
+                                        printFormat.ElementDelimiter,
+                                        multiLineString);
                 }
 
             result.Append(printFormat.EndString);
@@ -79,14 +81,17 @@ namespace CSharpUtilsNETStandard.Utils.Extensions.Collections.ToString
         }
 
         [NotNull]
-        public static string ToStringConsiderEnumerable<T>([NotNull]this T value)
+        public static string ToStringConsiderEnumerable<T>([NotNull] this T value)
         {
             if (value is IEnumerable enumerable) return enumerable.ToReadableStringNested();
-            return value.ToString();
+            return value.ToString() ?? NullString;
         }
 
         [NotNull]
-        private static string ToStringCustom<T>([CanBeNull]this IDictionary<Type, ToStringDelegate<object>> typeToStringMethod, [CanBeNull]T obj)
+        private static string ToStringCustom<T>(
+            [CanBeNull] this IDictionary<Type, ToStringDelegate<object>> typeToStringMethod,
+            [CanBeNull] T obj
+        )
         {
             if (obj == null) return NullString;
             if (typeToStringMethod == null || !typeToStringMethod.TryGetValue(obj.GetType(), out ToStringDelegate<object> toStringMethod) || toStringMethod == null) toStringMethod = NonNullToString<object>(null);
@@ -94,41 +99,59 @@ namespace CSharpUtilsNETStandard.Utils.Extensions.Collections.ToString
         }
 
         [NotNull]
-        private static ToStringDelegate<T> NonNullToString<T>([CanBeNull]ToStringDelegate<T> toStringMethod)
+        private static ToStringDelegate<T> NonNullToString<T>([CanBeNull] ToStringDelegate<T> toStringMethod)
         {
-            if (toStringMethod == null) return obj => obj == null ? NullString : obj.ToString();
-            return obj => obj == null ? NullString : toStringMethod(obj) ?? NullString;
+            if (toStringMethod == null) return obj => obj == null ? NullString : obj.ToString() ?? NullString;
+            return obj => obj == null ? NullString : toStringMethod(obj);
         }
 
+        /// <summary>
+        /// <see cref="ToReadableStringNested"/>
+        /// </summary>
         [NotNull]
-        public static string ToReadableString<T>([CanBeNull, ItemCanBeNull]this IEnumerable<T> enumerable, [CanBeNull]EnumerablePrintFormat enumerablePrintFormat = null, [CanBeNull]ToStringDelegate<T> toStringMethod = null)
+        public static string ToReadableString<T>(
+            [CanBeNull, ItemCanBeNull] this IEnumerable<T> enumerable,
+            [CanBeNull] EnumerablePrintFormat enumerablePrintFormat = null,
+            [CanBeNull]ToStringDelegate<T> toStringMethod = null
+        )
         {
             if (enumerable == null) return NullString;
             //If ToString() is overridden then use that (e.g. the class String implements IEnumerable but also overrides the ToString() method from Object)
             string enumerableToString = enumerable.ToString();
-            if (enumerableToString != enumerable.GetType().ToString()) return enumerableToString;
-            if (enumerablePrintFormat == null) enumerablePrintFormat = new EnumerablePrintFormat();
+            if (enumerableToString != enumerable.GetType().ToString() && enumerableToString != null) return enumerableToString;
+            enumerablePrintFormat = enumerablePrintFormat ?? new EnumerablePrintFormat();
             ToStringDelegate<T> safeToStringMethod = NonNullToString(toStringMethod);
             return ToStringInternal(enumerable, enumerablePrintFormat, safeToStringMethod);
         }
+
         //Don't provide an invalid Format! This may cause an exception!
         //Default FormatProvider is InvariantCulture
         [NotNull]
-        public static string ToReadableStringFormat<T>([CanBeNull, ItemCanBeNull]this IEnumerable<T> enumerable, [CanBeNull]EnumerablePrintFormat enumerablePrintFormat = null, [NotNull]string format = DefaultFormat, [CanBeNull]IFormatProvider formatProvider = null) where T : IFormattable
+        public static string ToReadableStringFormat<T>(
+            [CanBeNull, ItemCanBeNull] this IEnumerable<T> enumerable,
+            [CanBeNull] EnumerablePrintFormat enumerablePrintFormat = null,
+            [NotNull] string format = DefaultFormat,
+            [CanBeNull] IFormatProvider formatProvider = null
+        )
+            where T : IFormattable
         {
             if (enumerable == null) return NullString;
             //If ToString() is overridden then use that (e.g. the class String implements IEnumerable but also overrides the ToString() method from Object)
             string enumerableToString = enumerable.ToString();
-            if (enumerableToString != enumerable.GetType().ToString()) return enumerableToString;
-            if (enumerablePrintFormat == null) enumerablePrintFormat = new EnumerablePrintFormat();
+            if (enumerableToString != enumerable.GetType().ToString() && enumerableToString != null) return enumerableToString;
+            enumerablePrintFormat = enumerablePrintFormat ?? new EnumerablePrintFormat();
             if (string.IsNullOrWhiteSpace(format)) format = DefaultFormat;
-            if (formatProvider == null) formatProvider = CultureInfo.InvariantCulture;
+            formatProvider = formatProvider ?? CultureInfo.InvariantCulture;
             string ToStringMethod(T arg) => arg == null ? NullString : arg.ToString(format, formatProvider);
             return ToStringInternal(enumerable, enumerablePrintFormat, ToStringMethod);
         }
 
         [NotNull]
-        private static string ToStringInternal<T>([NotNull]this IEnumerable<T> enumerable, [NotNull]EnumerablePrintFormat enumerablePrintFormat, [NotNull]ToStringDelegate<T> toStringMethod)
+        private static string ToStringInternal<T>(
+            [NotNull, ItemCanBeNull] this IEnumerable<T> enumerable,
+            [NotNull] EnumerablePrintFormat enumerablePrintFormat,
+            [NotNull] ToStringDelegate<T> toStringMethod
+        )
         {
             string multiLineString = "";
             if (enumerablePrintFormat.NewLinesEachElement)
@@ -139,22 +162,27 @@ namespace CSharpUtilsNETStandard.Utils.Extensions.Collections.ToString
             foreach (T element in enumerable)
             {
                 result.AppendFormat("{0}{1}{2}",
-                    toStringMethod(element) ?? NullString,
-                    enumerablePrintFormat.ElementDelimiter,
-                    multiLineString);
+                                    toStringMethod(element) ?? NullString,
+                                    enumerablePrintFormat.ElementDelimiter,
+                                    multiLineString);
             }
             result.Append(enumerablePrintFormat.EndString);
             return result.ToString().Replace(enumerablePrintFormat.ElementDelimiter + multiLineString + enumerablePrintFormat.EndString, multiLineString + enumerablePrintFormat.EndString);
         }
 
         [NotNull]
-        public static string ToReadableString<TKey, TValue>([CanBeNull]this IDictionary<TKey, TValue> dictionary, [CanBeNull]EnumerablePrintFormat enumerablePrintFormat = null, [CanBeNull]ToStringDelegate<TKey> keyToStringMethod = null, [CanBeNull]ToStringDelegate<TValue> valueToStringMethod = null)
+        public static string ToReadableString<TKey, TValue>(
+            [CanBeNull] this IDictionary<TKey, TValue> dictionary,
+            [CanBeNull] EnumerablePrintFormat enumerablePrintFormat = null,
+            [CanBeNull] ToStringDelegate<TKey> keyToStringMethod = null,
+            [CanBeNull] ToStringDelegate<TValue> valueToStringMethod = null
+        )
         {
             if (dictionary == null) return "NULL";
             //If ToString() is overridden then use that (e.g. the class String implements IEnumerable but also overrides the ToString() method from Object)
             string dictionaryToString = dictionary.ToString();
-            if (dictionaryToString != dictionary.GetType().ToString()) return dictionaryToString;
-            if (enumerablePrintFormat == null) enumerablePrintFormat = new EnumerablePrintFormat();
+            if (dictionaryToString != dictionary.GetType().ToString() && dictionaryToString != null) return dictionaryToString;
+            enumerablePrintFormat = enumerablePrintFormat ?? new EnumerablePrintFormat();
             ToStringDelegate<TKey> safeKeyToStringMethod = NonNullToString(keyToStringMethod);
             ToStringDelegate<TValue> safeValueToStringMethod = NonNullToString(valueToStringMethod);
             string multiLineString = "";
@@ -166,11 +194,11 @@ namespace CSharpUtilsNETStandard.Utils.Extensions.Collections.ToString
             foreach (KeyValuePair<TKey, TValue> keyValue in dictionary)
             {
                 result.AppendFormat("{0}{1}{2}{3}{4}",
-                    safeKeyToStringMethod(keyValue.Key),
-                    enumerablePrintFormat.KeyValueDelimiter,
-                    safeValueToStringMethod(keyValue.Value),
-                    enumerablePrintFormat.ElementDelimiter,
-                    multiLineString);
+                                    safeKeyToStringMethod(keyValue.Key),
+                                    enumerablePrintFormat.KeyValueDelimiter,
+                                    safeValueToStringMethod(keyValue.Value),
+                                    enumerablePrintFormat.ElementDelimiter,
+                                    multiLineString);
             }
             result.Append(enumerablePrintFormat.EndString);
             return result.ToString().Replace(enumerablePrintFormat.ElementDelimiter + multiLineString + enumerablePrintFormat.EndString, multiLineString + enumerablePrintFormat.EndString);

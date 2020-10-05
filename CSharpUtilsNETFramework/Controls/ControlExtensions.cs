@@ -17,35 +17,37 @@ namespace CSharpUtilsNETFramework.Controls
     public static class ControlExtensions
     {
         [CanBeNull]
-        public static T NullIfDisposed<T>([NotNull] this T control) where T : Control => control.IsDisposed ? null : control;
+        public static T NullIfDisposed<T>([NotNull] this T control)
+            where T : Control => control.IsDisposed ? null : control;
 
         [DllImport("user32.dll")]
         private static extern int SendMessage(IntPtr hWnd, int wMsg, bool wParam, int lParam);
 
         private const int WM_SETREDRAW = 11;
 
-        public static void SuspendDrawing([NotNull]this Control parent)
+        public static void SuspendDrawing([NotNull] this Control parent)
         {
             SendMessage(parent.Handle, WM_SETREDRAW, false, 0);
         }
 
-        public static void ResumeDrawing([NotNull]this Control parent)
+        public static void ResumeDrawing([NotNull] this Control parent)
         {
             SendMessage(parent.Handle, WM_SETREDRAW, true, 0);
             parent.Refresh();
         }
 
-        public static float GetScalingFactorYAxis([NotNull]this Control control)
+        public static float GetScalingFactorYAxis([NotNull] this Control control)
         {
             float scalingFactor = control.CreateGraphics().DpiY / 96;
             return scalingFactor;
         }
 
         [NotNull, ItemNotNull]
-        public static IEnumerable<Control> EnumerateControlsRecursive([CanBeNull]this Control parent) => parent.EnumerateControlsRecursive<Control>();
+        public static IEnumerable<Control> EnumerateControlsRecursive([CanBeNull] this Control parent) => parent.EnumerateControlsRecursive<Control>();
 
         [NotNull, ItemNotNull]
-        public static IEnumerable<T> EnumerateControlsRecursive<T>([CanBeNull]this Control parent) where T : Control
+        public static IEnumerable<T> EnumerateControlsRecursive<T>([CanBeNull] this Control parent)
+            where T : Control
         {
             if (parent == null) yield break;
             foreach (Control child in parent.Controls)
@@ -58,9 +60,9 @@ namespace CSharpUtilsNETFramework.Controls
 
         public static bool AreBoundsVisibleOnScreen(this Rectangle bounds) =>
             IsPointVisible(new Point(bounds.Left, bounds.Top))
-            && IsPointVisible(new Point(bounds.Right, bounds.Top))
-            && IsPointVisible(new Point(bounds.Right, bounds.Bottom))
-            && IsPointVisible(new Point(bounds.Left, bounds.Bottom));
+         && IsPointVisible(new Point(bounds.Right, bounds.Top))
+         && IsPointVisible(new Point(bounds.Right, bounds.Bottom))
+         && IsPointVisible(new Point(bounds.Left, bounds.Bottom));
 
         private static bool IsPointVisible(this Point p)
         {
@@ -68,7 +70,7 @@ namespace CSharpUtilsNETFramework.Controls
             return screen.Bounds.Contains(p);
         }
 
-        public static void InvokeIfRequiredAndNotDisposed([NotNull] this Control control, MethodInvoker action)
+        public static void InvokeIfRequiredAndNotDisposed([NotNull] this Control control, [NotNull] MethodInvoker action)
         {
             if (control.IsDisposed) return;
             //InvokeRequired will create a Handle which we may not want yet because it will force ownership of the control onto the current thread.
@@ -84,7 +86,7 @@ namespace CSharpUtilsNETFramework.Controls
             }
         }
 
-        public static void RefreshStringListBox([NotNull]this ListBox listBox, [NotNull, ItemNotNull]IList<string> elements)
+        public static void RefreshStringListBox([NotNull] this ListBox listBox, [NotNull, ItemNotNull] IList<string> elements)
         {
             if (listBox.Items.Cast<object>().All(item => elements.Contains(item.ToString()) && listBox.Items.IndexOf(item) == elements.IndexOf(item.ToString())) && listBox.Items.Count == elements.Count) return;
             if (listBox.SelectionMode != SelectionMode.One) return;
@@ -108,7 +110,14 @@ namespace CSharpUtilsNETFramework.Controls
         /// <param name="forceSelection">If this parameter is true (default), then in case the next selection parameter is null or not possible (e.g. not in the list of elements) and the list of elements has at least one element, then the previous selection of the ComboBox is used as the next selection and if it is also null or not possible, then the first element will be selected. Otherwise nothing is selected.</param>
         /// <param name="ignoreOrder">If this parameter is true then the order of ComboBox Item collection can differ from the order of the list of elements as long as they contain the same elements. Otherwise (default) the order is considered when comparing the two.</param>
         /// <param name="forceRefresh">If this parameter is true then the ComboBox is always refreshed. Otherwise (default) the ComboBox is only refreshed if the ComboBox Item collection differs from the list of elements parameter.</param>
-        public static void RefreshStringComboBox([NotNull]this ComboBox comboBox, [NotNull, ItemNotNull]IList<string> elementList, [CanBeNull]string nextSelection = null, bool forceSelection = true, bool ignoreOrder = false, bool forceRefresh = false)
+        public static void RefreshStringComboBox(
+            [NotNull] this ComboBox comboBox,
+            [NotNull, ItemNotNull] IList<string> elementList,
+            [CanBeNull] string nextSelection = null,
+            bool forceSelection = true,
+            bool ignoreOrder = false,
+            bool forceRefresh = false
+        )
         {
             if (!forceRefresh && comboBox.Items.Cast<object>().Select(item => item.ToString()).ContentEquals(elementList, ignoreOrder: ignoreOrder)) return;
             string selectedItem = null;
@@ -123,7 +132,17 @@ namespace CSharpUtilsNETFramework.Controls
             comboBox.SelectedItem = selectedItem;
         }
 
-        public static void RefreshGenericComboBox<T>([NotNull]this ComboBox comboBox, [NotNull, ItemNotNull]IList<T> elementList, bool useNextSelection = false, [CanBeNull]T nextSelection = default, [CanBeNull]Func<T, string> stringRepresentationFunc = null, bool forceSelection = true, bool ignoreOrder = false, bool forceRefresh = false) where T : IEquatable<T>
+        public static void RefreshGenericComboBox<T>(
+            [NotNull] this ComboBox comboBox,
+            [NotNull, ItemNotNull] IList<T> elementList,
+            bool useNextSelection = false,
+            [CanBeNull] T nextSelection = default,
+            [CanBeNull] Func<T, string> stringRepresentationFunc = null,
+            bool forceSelection = true,
+            bool ignoreOrder = false,
+            bool forceRefresh = false
+        )
+            where T : IEquatable<T>
         {
             if (!forceRefresh && comboBox.Items.Cast<T>().ContentEquals(elementList, ignoreOrder: ignoreOrder)) return;
             bool useSelectedItem = false;
@@ -166,13 +185,14 @@ namespace CSharpUtilsNETFramework.Controls
         /// <typeparam name="T"></typeparam>
         public sealed class StringWrapper<T> : IEquatable<StringWrapper<T>>, IEquatable<T>
         {
-            public StringWrapper([NotNull]T value, [NotNull]Func<T, string> toStringFunc)
+            public StringWrapper([NotNull] T value, [NotNull] Func<T, string> toStringFunc)
             {
                 _value = value;
                 _toStringFunc = toStringFunc;
             }
 
-            [NotNull] private readonly T _value;
+            [NotNull]
+            private readonly T _value;
 
             [NotNull]
             private readonly Func<T, string> _toStringFunc;

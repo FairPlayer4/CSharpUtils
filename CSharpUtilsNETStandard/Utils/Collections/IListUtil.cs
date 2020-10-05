@@ -11,85 +11,81 @@ namespace CSharpUtilsNETStandard.Utils.Collections
     [PublicAPI]
     public interface IReadOnlyListUtil<T>
     {
-        [UsedImplicitly, Pure]
-        int BinarySearch(int index, int count, [CanBeNull] T item, [CanBeNull] IComparer<T> comparer);
+        [Pure]
+        int BinarySearch(int index, int count, [CanBeNull] T item, [NotNull] IComparer<T> comparer);
 
-        [UsedImplicitly, Pure]
+        [Pure]
         int BinarySearch([CanBeNull] T item);
 
-        [UsedImplicitly, Pure]
-        int BinarySearch([CanBeNull] T item, [CanBeNull] IComparer<T> comparer);
+        [Pure]
+        int BinarySearch([CanBeNull] T item, [NotNull] IComparer<T> comparer);
 
-        [UsedImplicitly, NotNull, Pure]
+        [NotNull, ItemCanBeNull, Pure]
         List<TOutput> ConvertAll<TOutput>([NotNull] Converter<T, TOutput> converter);
 
-        [UsedImplicitly]
         void CopyTo([NotNull] T[] array);
 
-        [UsedImplicitly]
         void CopyTo([NotNull] T[] array, int arrayIndex);
 
-        [UsedImplicitly]
         void CopyTo(int index, [NotNull] T[] array, int arrayIndex, int count);
 
-        [UsedImplicitly, Pure]
+        [Pure]
         bool Exists([NotNull] Predicate<T> match);
 
-        [UsedImplicitly, Pure]
+        [CanBeNull, Pure]
         T Find([NotNull] Predicate<T> match);
 
-        [UsedImplicitly, NotNull, Pure]
+        [NotNull, ItemCanBeNull, Pure]
         List<T> FindAll([NotNull] Predicate<T> match);
 
-        [UsedImplicitly, Pure]
+        [Pure]
         int FindIndex([NotNull] Predicate<T> match);
 
-        [UsedImplicitly, Pure]
+        [Pure]
         int FindIndex(int startIndex, [NotNull] Predicate<T> match);
 
-        [UsedImplicitly, Pure]
+        [Pure]
         int FindIndex(int startIndex, int count, [NotNull] Predicate<T> match);
 
-        [UsedImplicitly, CanBeNull, Pure]
+        [CanBeNull, Pure]
         T FindLast([NotNull] Predicate<T> match);
 
-        [UsedImplicitly, Pure]
+        [Pure]
         int FindLastIndex([NotNull] Predicate<T> match);
 
-        [UsedImplicitly, Pure]
+        [Pure]
         int FindLastIndex(int startIndex, [NotNull] Predicate<T> match);
 
-        [UsedImplicitly, Pure]
+        [Pure]
         int FindLastIndex(int startIndex, int count, [NotNull] Predicate<T> match);
 
-        [UsedImplicitly]
         void ForEach([NotNull] Action<T> action);
 
-        [UsedImplicitly, Pure]
+        [NotNull, ItemCanBeNull, Pure]
         List<T> GetRange(int index, int count);
 
-        [UsedImplicitly, Pure]
+        [Pure]
         int IndexOf([CanBeNull] T item);
 
-        [UsedImplicitly, Pure]
+        [Pure]
         int IndexOf([CanBeNull] T item, int index);
 
-        [UsedImplicitly, Pure]
+        [Pure]
         int IndexOf([CanBeNull] T item, int index, int count);
 
-        [UsedImplicitly, Pure]
+        [Pure]
         int LastIndexOf([CanBeNull] T item);
 
-        [UsedImplicitly, Pure]
+        [Pure]
         int LastIndexOf([CanBeNull] T item, int index);
 
-        [UsedImplicitly, Pure]
+        [Pure]
         int LastIndexOf([CanBeNull] T item, int index, int count);
 
-        [UsedImplicitly, NotNull, Pure]
+        [NotNull, Pure]
         T[] ToArray();
 
-        [UsedImplicitly, Pure]
+        [Pure]
         bool TrueForAll([NotNull] Predicate<T> match);
     }
 
@@ -98,27 +94,21 @@ namespace CSharpUtilsNETStandard.Utils.Collections
     /// Used by SetList and DictionaryList so they have all the functionality of the standard List.
     /// </summary>
     /// <typeparam name="T"></typeparam>
+    [PublicAPI]
     public interface IListUtil<T> : IReadOnlyListUtil<T>
     {
-        [UsedImplicitly]
         void Reverse();
 
-        [UsedImplicitly]
         void Reverse(int index, int count);
 
-        [UsedImplicitly]
         void Sort();
 
-        [UsedImplicitly]
-        void Sort([CanBeNull] IComparer<T> comparer);
+        void Sort([NotNull] IComparer<T> comparer);
 
-        [UsedImplicitly]
-        void Sort(int index, int count, [CanBeNull] IComparer<T> comparer);
+        void Sort(int index, int count, [NotNull] IComparer<T> comparer);
 
-        [UsedImplicitly]
         void Sort([NotNull] Comparison<T> comparison);
 
-        [UsedImplicitly]
         void TrimExcess();
     }
 }

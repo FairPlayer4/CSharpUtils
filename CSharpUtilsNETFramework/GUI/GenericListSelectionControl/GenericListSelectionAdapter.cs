@@ -18,14 +18,19 @@ namespace CSharpUtilsNETFramework.GUI.GenericListSelectionControl
     [PublicAPI]
     public sealed class GenericColumnSpecification<T>
     {
+        [NotNull]
         public string Name { get; private set; }
+
+        [NotNull]
         public Func<T, string> ObjectToColumnValueString { get; private set; }
+
         public ColumnContentPriority ColumnContentPriority { get; private set; }
 
         [CanBeNull]
         public IReadOnlyDictionary<string, Color> ValueToForeColorMap { get; }
+
         //Add more things as necessary
-        public GenericColumnSpecification(string name, Func<T, string> objectToColumnValueString, ColumnContentPriority columnContentPriority = ColumnContentPriority.Medium, [CanBeNull] IReadOnlyDictionary<string, Color> valueToForeColorMap = null)
+        public GenericColumnSpecification([NotNull] string name, [NotNull] Func<T, string> objectToColumnValueString, ColumnContentPriority columnContentPriority = ColumnContentPriority.Medium, [CanBeNull] IReadOnlyDictionary<string, Color> valueToForeColorMap = null)
         {
             Name = name;
             ObjectToColumnValueString = objectToColumnValueString;
@@ -39,12 +44,16 @@ namespace CSharpUtilsNETFramework.GUI.GenericListSelectionControl
     {
         [NotNull]
         public string CheckBoxColumnName { get; set; }
+
         [NotNull]
         public IReadOnlyList<GenericColumnSpecification<T>> ColumnSpecifications { get; set; }
+
         [NotNull]
         public IReadOnlyList<T> Items { get; set; }
+
         [NotNull]
         public IReadOnlyList<T> PreselectedItems { get; set; }
+
         [NotNull]
         public IReadOnlyList<GroupedObject<T>> GroupedObjectsList { get; set; }
 
@@ -63,40 +72,51 @@ namespace CSharpUtilsNETFramework.GUI.GenericListSelectionControl
     {
         #region Events
 
-        public delegate void NewItemSelectedOrCheckedHandler([NotNull]GenericListSelectionAdapter<T> sender, [NotNull]T item);
+        public delegate void NewItemSelectedOrCheckedHandler([NotNull] GenericListSelectionAdapter<T> sender, [NotNull] T item);
 
-        public delegate void SelectionOrCheckChangedHandler([NotNull]GenericListSelectionAdapter<T> sender, [CanBeNull] T item);
+        public delegate void SelectionOrCheckChangedHandler([NotNull] GenericListSelectionAdapter<T> sender, [CanBeNull] T item);
 
-        public delegate void BeforeCheckChangedHandler([NotNull]GenericListSelectionAdapter<T> sender, [CanBeNull] T item, ref bool allowCheckChanged);
+        public delegate void BeforeCheckChangedHandler([NotNull] GenericListSelectionAdapter<T> sender, [CanBeNull] T item, ref bool allowCheckChanged);
 
         public delegate void GenericEventHandler([NotNull] GenericListSelectionAdapter<T> sender);
 
         [CanBeNull]
         public event GenericEventHandler NavigationClick;
+
         [CanBeNull]
         public event BeforeCheckChangedHandler ItemBeforeCheckChanged;
+
         [CanBeNull]
         public event SelectionOrCheckChangedHandler ItemAfterCheckChanged;
+
         [CanBeNull]
         public event SelectionOrCheckChangedHandler ItemAfterSelectionChanged;
+
         [CanBeNull]
         public event SelectionOrCheckChangedHandler ItemAfterSelectionOrCheckedChanged;
+
         [CanBeNull]
         public event NewItemSelectedOrCheckedHandler NewValidItemSelected;
+
         [CanBeNull]
         public event NewItemSelectedOrCheckedHandler NewValidItemChecked;
+
         [CanBeNull]
         public event NewItemSelectedOrCheckedHandler NewValidItemSelectedOrChecked;
 
         #endregion
 
         private readonly bool Initialized;
+
         [NotNull]
         public readonly GenericAdapterConfiguration<T> Configuration;
+
         [NotNull]
         public readonly ListSelectionControl ListSelectionControl;
+
         [NotNull]
         public readonly ListViewObjectAdapter<T> ListViewObjectAdapter;
+
         [NotNull]
         private IReadOnlyList<GroupedObject<T>> DataObjects => Configuration.GroupedObjectsList;
 
@@ -155,7 +175,7 @@ namespace CSharpUtilsNETFramework.GUI.GenericListSelectionControl
 
         public bool IgnoreAllListViewEvents => ListViewObjectAdapter.SortingByColumnClickInProgress;
 
-        public GenericListSelectionAdapter([NotNull]ListSelectionControl listSelectionControl, [NotNull]GenericAdapterConfiguration<T> configuration)
+        public GenericListSelectionAdapter([NotNull] ListSelectionControl listSelectionControl, [NotNull] GenericAdapterConfiguration<T> configuration)
         {
             ListSelectionControl = listSelectionControl;
             Configuration = configuration;
@@ -193,8 +213,8 @@ namespace CSharpUtilsNETFramework.GUI.GenericListSelectionControl
             // Use old initialization (with groups)
             if (ListSelectionControl.EnableMultiselection)
             {
-                var selectAll = new ToolStripMenuItem("Select All", null, (sender, args) => ListViewObjectAdapter.SetAllChecked(true));
-                var deselectAll = new ToolStripMenuItem("Deselect All", null, (sender, args) => ListViewObjectAdapter.SetAllChecked(false));
+                ToolStripMenuItem selectAll = new ToolStripMenuItem("Select All", null, (sender, args) => ListViewObjectAdapter.SetAllChecked(true));
+                ToolStripMenuItem deselectAll = new ToolStripMenuItem("Deselect All", null, (sender, args) => ListViewObjectAdapter.SetAllChecked(false));
 
                 OptionsContextMenuStrip.Items.Add(new ToolStripSeparator());
                 OptionsContextMenuStrip.Items.Add(selectAll);
@@ -214,7 +234,7 @@ namespace CSharpUtilsNETFramework.GUI.GenericListSelectionControl
 
         #region Selection and Checking
 
-        public void SetSelectedValue([NotNull]T value, ListViewEventReaction eventReaction)
+        public void SetSelectedValue([NotNull] T value, ListViewEventReaction eventReaction)
         {
             SetListViewEventReaction(eventReaction);
             ListViewObjectAdapter.SetSelectedValue(value);
@@ -341,26 +361,26 @@ namespace CSharpUtilsNETFramework.GUI.GenericListSelectionControl
             return new ListViewObjectAdapter<T>(ListView, GetRowContentForDataObject, Configuration.ColumnSpecifications.Select(x => x.Name).ToArray())
             {
                 OnItemCreated = (dataObject, listItem) =>
-                {
-                    listItem.Checked = Configuration.PreselectedItems.Contains(dataObject);
-                    listItem.Tag = dataObject;
+                                {
+                                    listItem.Checked = Configuration.PreselectedItems.Contains(dataObject);
+                                    listItem.Tag = dataObject;
 
-                    foreach (var columnSpec in Configuration.ColumnSpecifications)
-                    {
-                        if (columnSpec.ValueToForeColorMap == null) continue;
-                        foreach (ListViewItem.ListViewSubItem subItem in listItem.SubItems)
-                        {
-                            if (!columnSpec.ValueToForeColorMap.ContainsKey(subItem.Text)) continue;
-                            listItem.UseItemStyleForSubItems = false;
-                            subItem.BackColor = columnSpec.ValueToForeColorMap[subItem.Text];
-                        }
-                    }
-                }
+                                    foreach (var columnSpec in Configuration.ColumnSpecifications)
+                                    {
+                                        if (columnSpec.ValueToForeColorMap == null) continue;
+                                        foreach (ListViewItem.ListViewSubItem subItem in listItem.SubItems)
+                                        {
+                                            if (!columnSpec.ValueToForeColorMap.ContainsKey(subItem.Text)) continue;
+                                            listItem.UseItemStyleForSubItems = false;
+                                            subItem.BackColor = columnSpec.ValueToForeColorMap[subItem.Text];
+                                        }
+                                    }
+                                }
             };
         }
 
         [NotNull]
-        private ListViewAdapterRowContent GetRowContentForDataObject(T rowObject)
+        private ListViewAdapterRowContent GetRowContentForDataObject([NotNull] T rowObject)
         {
             // The old configuration creates the values of the ListView row-wise for each item. The new configuration queries the values column-wise for each row.
             string[] columnValuesAsRow = Configuration.ColumnSpecifications.Select(spec => spec.ObjectToColumnValueString(rowObject)).ToArray();
@@ -371,16 +391,16 @@ namespace CSharpUtilsNETFramework.GUI.GenericListSelectionControl
 
         private void CreateMenuItemsForColumns()
         {
-            var itemResetColumnWidths = new ToolStripMenuItem("Reset column widths");
+            ToolStripMenuItem itemResetColumnWidths = new ToolStripMenuItem("Reset column widths");
             itemResetColumnWidths.Click += (sender, args) => ListSelectionControl.ResetColumnWidths();
             ColumnsContextMenuStrip.Items.Add(itemResetColumnWidths);
-            var itemResetColumnSorting = new ToolStripMenuItem("Reset column sorting");
+            ToolStripMenuItem itemResetColumnSorting = new ToolStripMenuItem("Reset column sorting");
             itemResetColumnSorting.Click += (sender, args) => ListViewObjectAdapter.ResetSorting(Reload);
             ColumnsContextMenuStrip.Items.Add(itemResetColumnSorting);
             foreach (ColumnHeader columnHeader in ColumnHeaders.Where(y => y.Text.Length > 0))
             {
                 // Created MenuItem
-                var item = new ToolStripMenuItem(columnHeader.Text)
+                ToolStripMenuItem item = new ToolStripMenuItem(columnHeader.Text)
                 {
                     CheckOnClick = true,
                     Checked = true,
@@ -393,36 +413,36 @@ namespace CSharpUtilsNETFramework.GUI.GenericListSelectionControl
                 // in regard to the column index (Columns can't get mixed up by continuously
                 // doing this). After this, the columns are resized to match the control width.
                 item.CheckStateChanged += (sender, args) =>
-                {
-                    ColumnHeader itemColumnHeader = (ColumnHeader)item.Tag;
-                    if (item.Checked)
-                    {
-                        int columnCount = 0;
+                                          {
+                                              ColumnHeader itemColumnHeader = (ColumnHeader)item.Tag;
+                                              if (item.Checked)
+                                              {
+                                                  int columnCount = 0;
 
-                        foreach (string columnTitle in Configuration.ColumnSpecifications.Select(x => x.Name))
-                        {
-                            if (columnTitle.Equals(itemColumnHeader.Text))
-                            {
-                                ListView.Columns.Insert(columnCount, itemColumnHeader);
-                            }
-                            else
-                            {
-                                string title = columnTitle;
-                                if (ColumnHeaders.Any(y => y.Text.Equals(title))) columnCount++;
-                            }
-                        }
-                    }
-                    else
-                    {
-                        ListView.Columns.Remove(itemColumnHeader);
-                    }
+                                                  foreach (string columnTitle in Configuration.ColumnSpecifications.Select(x => x.Name))
+                                                  {
+                                                      if (columnTitle.Equals(itemColumnHeader.Text))
+                                                      {
+                                                          ListView.Columns.Insert(columnCount, itemColumnHeader);
+                                                      }
+                                                      else
+                                                      {
+                                                          string title = columnTitle;
+                                                          if (ColumnHeaders.Any(y => y.Text.Equals(title))) columnCount++;
+                                                      }
+                                                  }
+                                              }
+                                              else
+                                              {
+                                                  ListView.Columns.Remove(itemColumnHeader);
+                                              }
 
-                    // reload data to align row-content to existing columns
-                    // is required because removing a Column n<m from a set of m columns will shift all data one column to the left since the listview does not handle such cases.
-                    ListViewObjectAdapter.LoadValues(DataObjects); // it is important to load the data like this, as the "DataObjects" also contain the group-mappings (if any)
+                                              // reload data to align row-content to existing columns
+                                              // is required because removing a Column n<m from a set of m columns will shift all data one column to the left since the listview does not handle such cases.
+                                              ListViewObjectAdapter.LoadValues(DataObjects); // it is important to load the data like this, as the "DataObjects" also contain the group-mappings (if any)
 
-                    // Save to settings:
-                };
+                                              // Save to settings:
+                                          };
 
                 ColumnsContextMenuStrip.Items.Add(item);
             }
@@ -446,12 +466,12 @@ namespace CSharpUtilsNETFramework.GUI.GenericListSelectionControl
 
         #region UI Event Handlers
 
-        private void ListView_ItemAfterSelectionChanged(object sender, ListViewItemSelectionChangedEventArgs selectionEvent)
+        private void ListView_ItemAfterSelectionChanged([CanBeNull] object sender, [NotNull] ListViewItemSelectionChangedEventArgs selectionEvent)
         {
             HandleAfterSelectionAndCheckChangedEvents(selectionEvent, null);
         }
 
-        private void ListView_ItemBeforeCheckChanged(object sender, ItemCheckEventArgs e)
+        private void ListView_ItemBeforeCheckChanged([CanBeNull] object sender, [NotNull] ItemCheckEventArgs e)
         {
             if (!Initialized) return;
             bool allowCheckChange = true;
@@ -459,12 +479,13 @@ namespace CSharpUtilsNETFramework.GUI.GenericListSelectionControl
             if (!allowCheckChange) e.NewValue = e.CurrentValue;
         }
 
-        private void ListView_ItemAfterCheckChanged(object sender, ItemCheckedEventArgs checkedEvent)
+        private void ListView_ItemAfterCheckChanged([CanBeNull] object sender, [NotNull] ItemCheckedEventArgs checkedEvent)
         {
             HandleAfterSelectionAndCheckChangedEvents(null, checkedEvent);
         }
 
         private bool _saveRecentEvents;
+
         private bool SaveRecentEvents
         {
             get => _saveRecentEvents;
@@ -487,12 +508,14 @@ namespace CSharpUtilsNETFramework.GUI.GenericListSelectionControl
         {
             [CanBeNull]
             public ListViewItem Item { get; }
+
             [CanBeNull]
             public bool? IsSelected { get; }
+
             [CanBeNull]
             public bool? IsChecked { get; }
 
-            private SelectionCheckEvent(ListViewItem item, bool? isSelected, bool? isChecked)
+            private SelectionCheckEvent([CanBeNull] ListViewItem item, bool? isSelected, bool? isChecked)
             {
                 Item = item;
                 IsSelected = isSelected;
@@ -500,10 +523,10 @@ namespace CSharpUtilsNETFramework.GUI.GenericListSelectionControl
             }
 
             [NotNull]
-            public static SelectionCheckEvent GetSelectionEvent(ListViewItem item, bool isSelected) => new SelectionCheckEvent(item, isSelected, null);
+            public static SelectionCheckEvent GetSelectionEvent([CanBeNull] ListViewItem item, bool isSelected) => new SelectionCheckEvent(item, isSelected, null);
 
             [NotNull]
-            public static SelectionCheckEvent GetCheckEvent(ListViewItem item, bool isChecked) => new SelectionCheckEvent(item, null, isChecked);
+            public static SelectionCheckEvent GetCheckEvent([CanBeNull] ListViewItem item, bool isChecked) => new SelectionCheckEvent(item, null, isChecked);
 
             public SelectionCheckEvent([CanBeNull] ListViewItemSelectionChangedEventArgs selectionEvent, [CanBeNull] ItemCheckedEventArgs checkedEvent)
             {
@@ -524,8 +547,8 @@ namespace CSharpUtilsNETFramework.GUI.GenericListSelectionControl
                 if (ReferenceEquals(null, other)) return false;
                 if (ReferenceEquals(this, other)) return true;
                 return Equals(Item, other.Item)
-                       && IsSelected == other.IsSelected
-                       && IsChecked == other.IsChecked;
+                    && IsSelected == other.IsSelected
+                    && IsChecked == other.IsChecked;
             }
 
             public override bool Equals(object obj) => Equals(obj as SelectionCheckEvent);
@@ -544,12 +567,12 @@ namespace CSharpUtilsNETFramework.GUI.GenericListSelectionControl
 
         private readonly HashSet<SelectionCheckEvent> RecentSelectionAndCheckEvents = new HashSet<SelectionCheckEvent>();
 
-        private void HandleAfterSelectionAndCheckChangedEvents([CanBeNull]ListViewItemSelectionChangedEventArgs selectionEvent, [CanBeNull]ItemCheckedEventArgs checkedEvent)
+        private void HandleAfterSelectionAndCheckChangedEvents([CanBeNull] ListViewItemSelectionChangedEventArgs selectionEvent, [CanBeNull] ItemCheckedEventArgs checkedEvent)
         {
             HandleAfterSelectionAndCheckChangedEvents(new SelectionCheckEvent(selectionEvent, checkedEvent));
         }
 
-        private void HandleAfterSelectionAndCheckChangedEvents([NotNull]SelectionCheckEvent selectionCheckEvent)
+        private void HandleAfterSelectionAndCheckChangedEvents([NotNull] SelectionCheckEvent selectionCheckEvent)
         {
             if (SaveRecentEvents) RecentSelectionAndCheckEvents.Add(selectionCheckEvent);
             if (!Initialized || IgnoreAllListViewEvents) return;
@@ -609,17 +632,16 @@ namespace CSharpUtilsNETFramework.GUI.GenericListSelectionControl
             }
         }
 
-        private void OptionsButton_Click(object sender, EventArgs e)
+        private void OptionsButton_Click([CanBeNull] object sender, [CanBeNull] EventArgs e)
         {
             OptionsContextMenuStrip.Show(OptionsButton, new Point(1, OptionsButton.Height - 2));
         }
 
-        private void Navigate_Click(object sender, EventArgs e)
+        private void Navigate_Click([CanBeNull] object sender, [CanBeNull] EventArgs e)
         {
             NavigationClick?.Invoke(this);
         }
 
         #endregion
-
     }
 }

@@ -18,21 +18,24 @@ namespace CSharpUtilsNETFramework.GUI.Dialogs
     [PublicAPI]
     public sealed partial class ProgressDialog : ExtendedForm
     {
+        [NotNull]
         public string Title
         {
             get => Text;
             set => Text = value;
         }
 
+        [NotNull]
         public string StopButtonText
         {
             get => buttonStop.Text;
             set => buttonStop.Text = value;
         }
 
-
+        [CanBeNull]
         public Action ActionStop { get; set; }
 
+        [CanBeNull]
         public Action ActionClose { get; set; }
 
         private bool _showStopButton;
@@ -83,8 +86,10 @@ namespace CSharpUtilsNETFramework.GUI.Dialogs
             }
         }
 
+        [NotNull]
         public ProgressBar ProgressBar => progressBar;
 
+        [NotNull]
         public TextBox TextBoxInfo => textBoxInfo;
 
         private bool _ready;
@@ -95,7 +100,7 @@ namespace CSharpUtilsNETFramework.GUI.Dialogs
             ShowPercentage = false;
         }
 
-        public ProgressDialog(string title, bool showStopButton = true, bool showOutput = false, bool preventClosing = true, bool hideOnClose = true) : this()
+        public ProgressDialog([NotNull] string title, bool showStopButton = true, bool showOutput = false, bool preventClosing = true, bool hideOnClose = true) : this()
         {
             Title = title;
             ShowStopButton = showStopButton;
@@ -104,7 +109,10 @@ namespace CSharpUtilsNETFramework.GUI.Dialogs
             HideOnClose = hideOnClose;
         }
 
-        public ProgressDialog(string title, string stopButtonText, bool showStopButton = true, bool showOutput = true, bool preventClosing = false, bool hideOnClose = false, [CanBeNull] Action actionStop = null, [CanBeNull] Action actionClose = null) : this()
+        public ProgressDialog(
+            [NotNull] string title, [NotNull] string stopButtonText, bool showStopButton = true, bool showOutput = true, bool preventClosing = false,
+            bool hideOnClose = false, [CanBeNull] Action actionStop = null, [CanBeNull] Action actionClose = null
+        ) : this()
         {
             Title = title;
             StopButtonText = stopButtonText;
@@ -118,9 +126,9 @@ namespace CSharpUtilsNETFramework.GUI.Dialogs
         }
 
         [NotNull]
-        public static ProgressDialog GetUnclosable(string title, bool usePercentageAndManualUpdates)
+        public static ProgressDialog GetUnclosable([NotNull] string title, bool usePercentageAndManualUpdates)
         {
-            var progressDialog = new ProgressDialog(title, false, false, true, false);
+            ProgressDialog progressDialog = new ProgressDialog(title, false, false, true, false);
             if (usePercentageAndManualUpdates)
             {
                 progressDialog.ShowPercentage = true;
@@ -131,9 +139,9 @@ namespace CSharpUtilsNETFramework.GUI.Dialogs
         }
 
         [NotNull]
-        public static ProgressDialog GetCancelable(string title, Action actionOnStopAndClose, bool usePercentageAndManualUpdates)
+        public static ProgressDialog GetCancelable([NotNull] string title, [CanBeNull] Action actionOnStopAndClose, bool usePercentageAndManualUpdates)
         {
-            var progressDialog = new ProgressDialog(title, true, false, false, false);
+            ProgressDialog progressDialog = new ProgressDialog(title, true, false, false, false);
             progressDialog.ActionClose = actionOnStopAndClose;
             progressDialog.ActionStop = actionOnStopAndClose;
             if (usePercentageAndManualUpdates)
@@ -148,16 +156,16 @@ namespace CSharpUtilsNETFramework.GUI.Dialogs
         public void UpdateProgressBarValueSafe(int value)
         {
             this.InvokeIfRequiredAndNotDisposed(() =>
-            {
-                if (value < ProgressBar.Minimum) value = ProgressBar.Minimum;
-                if (value > ProgressBar.Maximum) value = ProgressBar.Maximum;
-                ProgressBar.Value = value;
-                percentageLabel.Text = string.Format(" {0}% ", value);
-                percentageLabel.Refresh();
-            });
+                                                {
+                                                    if (value < ProgressBar.Minimum) value = ProgressBar.Minimum;
+                                                    if (value > ProgressBar.Maximum) value = ProgressBar.Maximum;
+                                                    ProgressBar.Value = value;
+                                                    percentageLabel.Text = $" {value}% ";
+                                                    percentageLabel.Refresh();
+                                                });
         }
 
-        protected override void OnLoad(EventArgs e)
+        protected override void OnLoad([CanBeNull] EventArgs e)
         {
             base.OnLoad(e);
             _ready = true;
@@ -174,7 +182,7 @@ namespace CSharpUtilsNETFramework.GUI.Dialogs
             if (PreventClosing) e.Cancel = true;
         }
 
-        private void ButtonStop_Click(object sender, EventArgs e)
+        private void ButtonStop_Click([CanBeNull] object sender, [CanBeNull] EventArgs e)
         {
             ActionStop?.Invoke();
             StopClicked = true;
@@ -199,6 +207,7 @@ namespace CSharpUtilsNETFramework.GUI.Dialogs
         }
 
         private int CloseConditionCheckIntervalInMillis { get; set; }
+
         [CanBeNull]
         private TimerAction<byte> CloseTimerAction { get; set; }
 
@@ -217,19 +226,19 @@ namespace CSharpUtilsNETFramework.GUI.Dialogs
             ActivateCloseTimerActionOnShown = true;
             CloseConditionCheckIntervalInMillis = closeConditionCheckIntervalInMillis;
             Thread thread = new Thread(() =>
-            {
-                //InvokeRequired will create the Handle
-                if (InvokeRequired)
-                {
-                    //This would mean the Handle was already created in another thread and this does not work
-                    Logger.PrintWarning("The progress dialog can only be used in another UI Thread if the Handle was not created yet!\nThe progress dialog will not be shown!");
-                    Dispose();
-                    return;
-                }
-                Application.Run(this);
-                CloseTimerAction?.StopTimer(false);
-                Dispose();
-            });
+                                       {
+                                           //InvokeRequired will create the Handle
+                                           if (InvokeRequired)
+                                           {
+                                               //This would mean the Handle was already created in another thread and this does not work
+                                               Logger.PrintWarning("The progress dialog can only be used in another UI Thread if the Handle was not created yet!\nThe progress dialog will not be shown!");
+                                               Dispose();
+                                               return;
+                                           }
+                                           Application.Run(this);
+                                           CloseTimerAction?.StopTimer(false);
+                                           Dispose();
+                                       });
             thread.IsBackground = true;
             thread.SetApartmentState(ApartmentState.STA);
             thread.Start();
@@ -241,15 +250,16 @@ namespace CSharpUtilsNETFramework.GUI.Dialogs
             RunInSeparateUIThreadAndDisposeAfterwards(closeConditionCheckIntervalInMillis);
         }
 
-        protected override void OnShown(EventArgs e)
+        protected override void OnShown([CanBeNull] EventArgs e)
         {
             base.OnShown(e);
             if (!ActivateCloseTimerActionOnShown) return;
             CloseTimerAction = new TimerAction<byte>(value =>
-            {
-                if (CloseOnNextTimerAction) Close();
-                else CloseTimerAction?.ResetTimer();
-            }, CloseConditionCheckIntervalInMillis);
+                                                     {
+                                                         if (CloseOnNextTimerAction) Close();
+                                                         else CloseTimerAction?.ResetTimer();
+                                                     },
+                                                     CloseConditionCheckIntervalInMillis);
             CloseTimerAction.ResetTimer();
         }
     }

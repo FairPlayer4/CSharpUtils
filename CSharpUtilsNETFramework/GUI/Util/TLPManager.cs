@@ -16,12 +16,16 @@ namespace CSharpUtilsNETFramework.GUI.Util
     {
         [NotNull]
         private readonly TableLayoutPanel _tlp;
+
         [NotNull, ItemNotNull]
         private readonly List<RowStyle> _visibleRowStyles = new List<RowStyle>();
+
         [NotNull, ItemNotNull]
         private readonly List<ColumnStyle> _visibleColumnStyles = new List<ColumnStyle>();
+
         [NotNull]
         private readonly List<int> _initialRowPixelHeights = new List<int>();
+
         [NotNull]
         private readonly List<int> _initialColumnPixelWidths = new List<int>();
 
@@ -262,11 +266,7 @@ namespace CSharpUtilsNETFramework.GUI.Util
             try
             {
                 // Fast Route if everything is fine.
-                if (tlp.RowStyles.Count == tlp.RowCount && tlp.ColumnStyles.Count == tlp.ColumnCount &&
-                tlp.RowStyles.Cast<RowStyle>().All(rowStyle => rowStyle.SizeType != SizeType.Absolute) &&
-                tlp.ColumnStyles.Cast<ColumnStyle>().All(columnStyle => columnStyle.SizeType != SizeType.Absolute) &&
-                (rows == null || rows.All(row => row > 0 && row < tlp.RowCount)) &&
-                (columns == null || columns.All(column => column > 0 && column <= tlp.ColumnCount)))
+                if (tlp.RowStyles.Count == tlp.RowCount && tlp.ColumnStyles.Count == tlp.ColumnCount && tlp.RowStyles.Cast<RowStyle>().All(rowStyle => rowStyle.SizeType != SizeType.Absolute) && tlp.ColumnStyles.Cast<ColumnStyle>().All(columnStyle => columnStyle.SizeType != SizeType.Absolute) && (rows == null || rows.All(row => row > 0 && row < tlp.RowCount)) && (columns == null || columns.All(column => column > 0 && column <= tlp.ColumnCount)))
                     return true;
                 return PassedChecksWithRecovery(tlp, rows, columns);
             }
@@ -375,8 +375,7 @@ namespace CSharpUtilsNETFramework.GUI.Util
                 return false;
             }
 
-            if (tlp.RowStyles.Cast<RowStyle>().Any(rowStyle => rowStyle.SizeType == SizeType.Absolute) ||
-                tlp.ColumnStyles.Cast<ColumnStyle>().Any(columnStyle => columnStyle.SizeType == SizeType.Absolute))
+            if (tlp.RowStyles.Cast<RowStyle>().Any(rowStyle => rowStyle.SizeType == SizeType.Absolute) || tlp.ColumnStyles.Cast<ColumnStyle>().Any(columnStyle => columnStyle.SizeType == SizeType.Absolute))
             {
                 Logger.PrintTrace("TLP did not pass checks! Check Trace for potential problems.", "TLP");
                 return false;
@@ -384,6 +383,5 @@ namespace CSharpUtilsNETFramework.GUI.Util
 
             return true;
         }
-
     }
 }

@@ -13,7 +13,6 @@ namespace CSharpUtilsNETStandard.Utils.Extensions.Collections.ToString
     [PublicAPI]
     public sealed class EnumerablePrintFormat
     {
-
         [NotNull] public string StartString { get; }
 
         [NotNull] public string EndString { get; }
@@ -43,7 +42,13 @@ namespace CSharpUtilsNETStandard.Utils.Extensions.Collections.ToString
         /// </summary>
         public int NumLinesEachElement { get; }
 
-        public EnumerablePrintFormat([NotNull]string startString = "[", [NotNull]string endString = "]", [NotNull]string elementDelimiter = ", ", [NotNull]string keyValueDelimiter = " = ", bool newLinesEachElement = false, int numLinesEachElement = 1)
+        public EnumerablePrintFormat(
+            [NotNull] string startString = "[",
+            [NotNull] string endString = "]",
+            [NotNull] string elementDelimiter = ", ",
+            [NotNull] string keyValueDelimiter = " = ", bool newLinesEachElement = false,
+            int numLinesEachElement = 1
+        )
         {
             StartString = startString;
             EndString = endString;
@@ -62,7 +67,12 @@ namespace CSharpUtilsNETStandard.Utils.Extensions.Collections.ToString
         [NotNull]
         public static EnumerablePrintFormat GetOnlyDelimiter([NotNull] string delimiter)
         {
-            return new EnumerablePrintFormat("", "", delimiter, "", false, 0);
+            return new EnumerablePrintFormat("",
+                                             "",
+                                             delimiter,
+                                             "",
+                                             false,
+                                             0);
         }
     }
 }

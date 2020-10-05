@@ -14,15 +14,19 @@ namespace CSharpUtilsNETFramework
     {
         [CanBeNull]
         public delegate T ActionValueGetter();
-        public delegate void ActionAfterTimer([CanBeNull]T currentActionValue);
-        public delegate bool ActionValueCondition([CanBeNull]T lastValue, [CanBeNull]T newValue);
+
+        public delegate void ActionAfterTimer([CanBeNull] T currentActionValue);
+
+        public delegate bool ActionValueCondition([CanBeNull] T lastValue, [CanBeNull] T newValue);
 
         [NotNull] private readonly ActionValueGetter _actionValueGetter;
         [NotNull] private readonly ActionAfterTimer _actionAfterTimer;
         [NotNull] private readonly ActionValueCondition _actionValueCondition;
         public int ActionTimeoutInMillis { get; set; }
+
         [CanBeNull]
         private Timer Timer;
+
         [CanBeNull]
         private T CurrentActionValue => _actionValueGetter();
 
@@ -81,7 +85,7 @@ namespace CSharpUtilsNETFramework
             Timer.Start();
         }
 
-        private void HandleTimerTick(object sender, EventArgs e)
+        private void HandleTimerTick([CanBeNull] object sender, [CanBeNull] EventArgs e)
         {
             if (!(sender is Timer)) return;
             StopTimer(true);
@@ -91,12 +95,15 @@ namespace CSharpUtilsNETFramework
     [PublicAPI]
     public static class DelayedAction
     {
+        [NotNull]
         private static readonly object Lock = new object();
 
         public static int MinimumDelayInMillis { get => DelayedActionTimer.ActionTimeoutInMillis; set => DelayedActionTimer.ActionTimeoutInMillis = value; }
 
+        [NotNull]
         private static readonly TimerAction<byte> DelayedActionTimer = new TimerAction<byte>(value => ExecuteActions(), 100);
 
+        [NotNull]
         private static readonly Queue<Action> DelayedActions = new Queue<Action>();
 
         public static void AddAction([NotNull] Action action)

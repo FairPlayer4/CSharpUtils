@@ -10,7 +10,10 @@ namespace CSharpUtilsNETStandard.Utils.Collections
     [PublicAPI]
     public sealed class BiDictionary<TFirst, TSecond>
     {
+        [NotNull]
         private readonly Dictionary<TFirst, TSecond> _firstToSecond = new Dictionary<TFirst, TSecond>();
+
+        [NotNull]
         private readonly Dictionary<TSecond, TFirst> _secondToFirst = new Dictionary<TSecond, TFirst>();
 
         private void Add([NotNull] TFirst first, [NotNull] TSecond second)
@@ -54,6 +57,5 @@ namespace CSharpUtilsNETStandard.Utils.Collections
         public ICollection<TSecond> Values => _firstToSecond.Values;
 
         #endregion
-
     }
 }

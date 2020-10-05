@@ -12,7 +12,6 @@ namespace CSharpUtilsNETStandard.Utils
     [PublicAPI]
     public static class FileUtils
     {
-
         /// <summary>
         /// Gets a value that indicates whether <paramref name="path"/>
         /// is a valid path.
@@ -24,7 +23,7 @@ namespace CSharpUtilsNETStandard.Utils
         /// </returns>
         /// <seealso cref="Path.GetFullPath"/>
         /// <seealso cref="TryGetFullFilePath"/>
-        public static bool IsValidFilePath([CanBeNull]this string path)
+        public static bool IsValidFilePath([CanBeNull] this string path)
         {
             return TryGetFullFilePath(path, out string _);
         }
@@ -49,7 +48,7 @@ namespace CSharpUtilsNETStandard.Utils
         /// </returns>
         /// <seealso cref="Path.GetFullPath"/>
         /// <seealso cref="IsValidFilePath"/>
-        public static bool TryGetFullFilePath([CanBeNull]this string path, [NotNull] out string result)
+        public static bool TryGetFullFilePath([CanBeNull] this string path, [NotNull] out string result)
         {
             result = string.Empty;
             if (string.IsNullOrWhiteSpace(path)) return false;
@@ -69,11 +68,9 @@ namespace CSharpUtilsNETStandard.Utils
         }
 
         [NotNull]
-        public static string GetValidFilename([NotNull]string filename)
+        public static string GetValidFilename([NotNull] string filename)
         {
             return string.Join("_", filename.Split(Path.GetInvalidFileNameChars()));
         }
-
     }
-
 }

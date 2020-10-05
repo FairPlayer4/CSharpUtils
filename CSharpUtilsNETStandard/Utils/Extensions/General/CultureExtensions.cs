@@ -13,6 +13,7 @@ namespace CSharpUtilsNETStandard.Utils.Extensions.General
     {
         [NotNull]
         public CultureInfo CultureInfo { get; set; } = CultureInfo.InvariantCulture;
+
         public int PrecisionDigits { get; set; } = 15;
         public bool TrimZeros { get; set; } = true;
         public int MinimumNumberOfDigits { get; set; }
@@ -31,40 +32,66 @@ namespace CSharpUtilsNETStandard.Utils.Extensions.General
         public static DoubleNumberFormat GetDefaultWithENotation() => new DoubleNumberFormat { AllowENotation = true };
 
         [NotNull]
-        public string ConvertToString(double number)
-        {
-            return number.ToStringFormat(CultureInfo, AllowENotation, UseENotationIfSmallerThan, UseENotationIfLargerThan, PrecisionDigits, TrimZeros, MinimumNumberOfDigits, TrimZerosAfterE, MinimumNumberOfZerosAfterE, AlwaysShowSeparator);
-        }
+        public string ConvertToString(double number) =>
+            number.ToStringFormat(CultureInfo,
+                                  AllowENotation,
+                                  UseENotationIfSmallerThan,
+                                  UseENotationIfLargerThan,
+                                  PrecisionDigits,
+                                  TrimZeros,
+                                  MinimumNumberOfDigits,
+                                  TrimZerosAfterE,
+                                  MinimumNumberOfZerosAfterE,
+                                  AlwaysShowSeparator);
     }
 
+    [PublicAPI]
     public static class CultureExtensions
     {
         [NotNull]
-        public static string ToStringInvariant<T>([NotNull] this T obj) where T : IConvertible
-        {
-            return obj.ToString(CultureInfo.InvariantCulture);
-        }
+        public static string ToStringInvariant<T>([NotNull] this T obj)
+            where T : IConvertible => obj.ToString(CultureInfo.InvariantCulture);
 
         [NotNull]
-        public static string ToStringFormat(this double number, [CanBeNull] CultureInfo cultureInfo = null, bool allowENotation = false, double useENotationIfSmallerThan = 0.01, double useENotationIfLargerThan = 9999, int precisionDigits = 15, bool trimZeros = true, int minimumNumberOfDigits = 0, bool trimZerosAfterE = true, int minimumNumberOfZerosAfterE = 1, bool alwaysShowSeparator = true)
+        public static string ToStringFormat(
+            this double number,
+            [CanBeNull] CultureInfo cultureInfo = null,
+            bool allowENotation = false,
+            double useENotationIfSmallerThan = 0.01,
+            double useENotationIfLargerThan = 9999,
+            int precisionDigits = 15,
+            bool trimZeros = true,
+            int minimumNumberOfDigits = 0,
+            bool trimZerosAfterE = true,
+            int minimumNumberOfZerosAfterE = 1,
+            bool alwaysShowSeparator = true
+        )
         {
-            if (cultureInfo == null) cultureInfo = CultureInfo.InvariantCulture;
+            cultureInfo = cultureInfo ?? CultureInfo.InvariantCulture;
             bool isInvariantCulture = cultureInfo.Equals(CultureInfo.InvariantCulture);
             // ReSharper disable once CompareOfFloatsByEqualityOperator
             if (isInvariantCulture && number == default) return alwaysShowSeparator ? "0." + new string('0', minimumNumberOfDigits) : "0";
             if (useENotationIfSmallerThan < 0) useENotationIfSmallerThan = -useENotationIfSmallerThan;
             if (useENotationIfLargerThan < 0) useENotationIfLargerThan = -useENotationIfLargerThan;
-            bool useENotation = allowENotation && (number < useENotationIfSmallerThan || number > useENotationIfLargerThan || -number > -useENotationIfSmallerThan || -number < -useENotationIfLargerThan);
-            if (useENotation) return number.ToStringWithENotation(cultureInfo, precisionDigits, true, trimZeros, minimumNumberOfDigits, trimZerosAfterE, minimumNumberOfZerosAfterE);
+            bool useENotation = allowENotation
+                             && (number < useENotationIfSmallerThan || number > useENotationIfLargerThan || -number > -useENotationIfSmallerThan || -number < -useENotationIfLargerThan);
+            if (useENotation)
+                return number.ToStringWithENotation(cultureInfo,
+                                                    precisionDigits,
+                                                    true,
+                                                    trimZeros,
+                                                    minimumNumberOfDigits,
+                                                    trimZerosAfterE,
+                                                    minimumNumberOfZerosAfterE);
             string returnValue = number.ToString("F" + precisionDigits, cultureInfo);
             if (trimZeros) returnValue = returnValue.TrimEnd('0');
             string numberSeparator = cultureInfo.NumberFormat.NumberDecimalSeparator;
-            if (returnValue.Length == 0) return alwaysShowSeparator ? string.Format("0{0}{1}", numberSeparator, new string('0', minimumNumberOfDigits)) : "0";
+            if (returnValue.Length == 0) return alwaysShowSeparator ? $"0{numberSeparator}{new string('0', minimumNumberOfDigits)}" : "0";
             minimumNumberOfDigits = GetMinimumNumberOfDigitsAfterSeparator(returnValue, minimumNumberOfDigits, numberSeparator);
-            if (returnValue.Length < minimumNumberOfDigits) returnValue = returnValue + new string('0', minimumNumberOfDigits - returnValue.Length);
+            if (returnValue.Length < minimumNumberOfDigits) returnValue += new string('0', minimumNumberOfDigits - returnValue.Length);
             if (char.IsDigit(returnValue[returnValue.Length - 1])) return returnValue;
             if (isInvariantCulture) return alwaysShowSeparator ? returnValue + "0" : returnValue.Remove(returnValue.Length - 1);
-            if (alwaysShowSeparator) return string.Format("{0}{1}{2}", returnValue, numberSeparator, 0.ToString(cultureInfo));
+            if (alwaysShowSeparator) return $"{returnValue}{numberSeparator}{0.ToString(cultureInfo)}";
             return returnValue.Remove(returnValue.Length - numberSeparator.Length - 1, numberSeparator.Length);
         }
 
@@ -80,25 +107,36 @@ namespace CSharpUtilsNETStandard.Utils.Extensions.General
         public static string ToStringInvariantAlwaysShowSeparator(this double value)
         {
             string stringInvariant = value.ToStringInvariant();
-            if (!stringInvariant.Contains(".")) stringInvariant = stringInvariant + ".0";
+            if (!stringInvariant.Contains(".")) stringInvariant += ".0";
             return stringInvariant;
         }
+
         [NotNull]
         public static string ToStringInvariantAlwaysShowSeparator(this float value)
         {
             string stringInvariant = value.ToStringInvariant();
-            if (!stringInvariant.Contains(".")) stringInvariant = stringInvariant + ".0";
+            if (!stringInvariant.Contains(".")) stringInvariant += ".0";
             return stringInvariant;
         }
+
         [NotNull]
-        public static string ToStringWithENotation(this double value, [CanBeNull] CultureInfo cultureInfo = null, int precisionDigits = 15, bool largeE = true, bool trimZerosBeforeE = true, int minimumNumberOfDigits = 6, bool trimZerosAfterE = true, int minimumNumberOfZerosAfterE = 1)
+        public static string ToStringWithENotation(
+            this double value,
+            [CanBeNull] CultureInfo cultureInfo = null,
+            int precisionDigits = 15,
+            bool largeE = true,
+            bool trimZerosBeforeE = true,
+            int minimumNumberOfDigits = 6,
+            bool trimZerosAfterE = true,
+            int minimumNumberOfZerosAfterE = 1
+        )
         {
-            if (cultureInfo == null) cultureInfo = CultureInfo.InvariantCulture;
+            cultureInfo = cultureInfo ?? CultureInfo.InvariantCulture;
             if (precisionDigits < 1) precisionDigits = 1;
             if (minimumNumberOfDigits < 0) minimumNumberOfDigits = 0;
             if (minimumNumberOfZerosAfterE < 0) minimumNumberOfZerosAfterE = 0;
             char e = largeE ? 'E' : 'e';
-            string returnValue = value.ToString(string.Format("{0}{1}", e, precisionDigits), cultureInfo);
+            string returnValue = value.ToString($"{e}{precisionDigits}", cultureInfo);
             minimumNumberOfDigits = GetMinimumNumberOfDigitsAfterSeparator(returnValue, minimumNumberOfDigits, cultureInfo.NumberFormat.NumberDecimalSeparator);
             int indexOfE = returnValue.IndexOf(e);
             if (indexOfE <= 0) return returnValue;
@@ -130,13 +168,15 @@ namespace CSharpUtilsNETStandard.Utils.Extensions.General
                     index++;
                     count++;
                 }
-                if (index == returnValue.Length) return returnValue.Remove(startingIndex) + new string('0', minimumNumberOfZerosAfterE);
-                if (count > minimumNumberOfZerosAfterE) return returnValue.Remove(startingIndex, count - minimumNumberOfZerosAfterE);
-                if (count < minimumNumberOfZerosAfterE) return returnValue.Insert(startingIndex, new string('0', minimumNumberOfZerosAfterE - count));
+                if (index == returnValue.Length)
+                    return returnValue.Remove(startingIndex) + new string('0', minimumNumberOfZerosAfterE);
+                if (count > minimumNumberOfZerosAfterE)
+                    return returnValue.Remove(startingIndex, count - minimumNumberOfZerosAfterE);
+                if (count < minimumNumberOfZerosAfterE)
+                    return returnValue.Insert(startingIndex, new string('0', minimumNumberOfZerosAfterE - count));
             }
 
             return returnValue;
         }
-
     }
 }

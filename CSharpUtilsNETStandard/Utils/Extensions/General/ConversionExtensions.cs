@@ -18,13 +18,14 @@ namespace CSharpUtilsNETStandard.Utils.Extensions.General
     {
         private const string Category = nameof(ConversionExtensions);
 
-        [CanBeNull]
-        public static T As<T>([CanBeNull]this object obj) where T : class
+        public static T As<T>([CanBeNull] this object obj)
+            where T : class
         {
             return obj as T;
         }
 
-        public static T UnboxOrDefault<T>([CanBeNull] this object o, T defaultValue = default) where T : struct, IConvertible
+        public static T UnboxOrDefault<T>([CanBeNull] this object o, T defaultValue = default)
+            where T : struct, IConvertible
         {
             switch (o)
             {
@@ -56,37 +57,48 @@ namespace CSharpUtilsNETStandard.Utils.Extensions.General
         }
 
         [CanBeNull]
-        public static TTo SafeCastWithFailureWarning<TFrom, TTo>([CanBeNull] this TFrom toBeCast) where TTo : class where TFrom : class
+        public static TTo SafeCastWithFailureWarning<TFrom, TTo>([CanBeNull] this TFrom toBeCast)
+            where TTo : class
+            where TFrom : class
         {
             return toBeCast as TTo ?? toBeCast.ReturnCastFailure<TFrom, TTo>();
         }
 
         [CanBeNull]
-        private static TTo ReturnCastFailure<TFrom, TTo>([CanBeNull] this TFrom original) where TTo : class where TFrom : class
+        private static TTo ReturnCastFailure<TFrom, TTo>([CanBeNull] this TFrom original)
+            where TTo : class
+            where TFrom : class
         {
             //Does not have to be efficient because it will rarely happen
             string interfaceName = typeof(TFrom).Name;
             string castName = typeof(TTo).Name;
-            string message = string.Format("Cast from {0} to {1} failed!", interfaceName, castName);
+            string message = $"Cast from {interfaceName} to {castName} failed!";
             if (original == null)
             {
-                message += string.Format(" Reason: {0} was null!", interfaceName);
+                message += $" Reason: {interfaceName} was null!";
                 Logger.PrintTrace(message);
             }
-            else Logger.PrintWarning(message);
+            else
+            {
+                Logger.PrintWarning(message);
+            }
             return null;
         }
-        [NotNull]
-        private delegate (object, bool) ConvertOrDefaultFunc([NotNull]string value, [NotNull]object defaultValue);
 
+        [NotNull]
+        private delegate (object, bool) ConvertOrDefaultFunc([NotNull] string value, [NotNull] object defaultValue);
+
+        [NotNull]
         private static readonly IReadOnlyDictionary<Type, ConvertOrDefaultFunc> DefaultStringToEnumConverters = new Dictionary<Type, ConvertOrDefaultFunc>();
 
-        public static bool IsEnumDefined<T>(this T enumValue) where T : struct, IConvertible
+        public static bool IsEnumDefined<T>(this T enumValue)
+            where T : struct, IConvertible
         {
             return Enum.IsDefined(typeof(T), enumValue);
         }
 
-        public static T GetEnumOrDefault<T>(this int enumValue, T defaultValue) where T : struct, IConvertible
+        public static T GetEnumOrDefault<T>(this int enumValue, T defaultValue)
+            where T : struct, IConvertible
         {
             try
             {
@@ -99,7 +111,7 @@ namespace CSharpUtilsNETStandard.Utils.Extensions.General
             return defaultValue;
         }
 
-        public static double ConvertToDouble([CanBeNull] this string value, double defaultValue, NumberStyles numberStyles = NumberStyles.Any, [CanBeNull] IFormatProvider formatProvider = null, LogLevel failureLogLevel = LogLevel.WARNING)
+        public static double ConvertToDouble([NotNull] this string value, double defaultValue, NumberStyles numberStyles = NumberStyles.Any, [CanBeNull] IFormatProvider formatProvider = null, LogLevel failureLogLevel = LogLevel.WARNING)
         {
             if (double.TryParse(value, numberStyles, formatProvider ?? CultureInfo.InvariantCulture, out double result)) return result;
             Logger.PrintLogLevel(failureLogLevel, $"The conversion of the string \"{value}\" to double failed.\nThe default value {defaultValue} will be returned.", Category);
@@ -107,7 +119,7 @@ namespace CSharpUtilsNETStandard.Utils.Extensions.General
         }
 
         [NotNull]
-        public static T ConvertOrDefault<T>([CanBeNull] this string value, [NotNull] T defaultValue, [CanBeNull] IFormatProvider formatProvider = null, LogLevel? failureLogLevel = LogLevel.WARNING)
+        public static T ConvertOrDefault<T>([CanBeNull] this string value, [NotNull] T defaultValue, [CanBeNull] IFormatProvider formatProvider = null, [CanBeNull] LogLevel? failureLogLevel = LogLevel.WARNING)
             where T : IConvertible
         {
             return ConvertOrDefault(value, defaultValue, out bool _, formatProvider, failureLogLevel);
@@ -120,11 +132,10 @@ namespace CSharpUtilsNETStandard.Utils.Extensions.General
             return ConvertOrDefault(value, defaultValue, formatProvider, null);
         }
 
-        [CanBeNull]
-        public static T? ConvertOrNull<T>([CanBeNull] this string value, [CanBeNull] IFormatProvider formatProvider = null, LogLevel? failureLogLevel = null)
+        public static T? ConvertOrNull<T>([CanBeNull] this string value, [CanBeNull] IFormatProvider formatProvider = null, [CanBeNull] LogLevel? failureLogLevel = null)
             where T : struct, IConvertible
         {
-            T conversionValue = ConvertOrDefault(value, default(T), out bool success, formatProvider, failureLogLevel);
+            T conversionValue = ConvertOrDefault<T>(value, default, out bool success, formatProvider, failureLogLevel);
             if (!success) return null;
             return conversionValue;
         }
@@ -150,7 +161,7 @@ namespace CSharpUtilsNETStandard.Utils.Extensions.General
         /// <param name="failureLogLevel">Prints a message with the specified LogLevel if the conversion fails except if the string value is null. (default: LogLevel.WARNING)</param>
         /// <returns></returns>
         [NotNull]
-        public static T ConvertOrDefault<T>([CanBeNull] this string value, [NotNull] T defaultValue, out bool success, [CanBeNull] IFormatProvider formatProvider = null, LogLevel? failureLogLevel = LogLevel.WARNING)
+        public static T ConvertOrDefault<T>([CanBeNull] this string value, [NotNull] T defaultValue, out bool success, [CanBeNull] IFormatProvider formatProvider = null, [CanBeNull] LogLevel? failureLogLevel = LogLevel.WARNING)
             where T : IConvertible
         {
             try
@@ -159,7 +170,7 @@ namespace CSharpUtilsNETStandard.Utils.Extensions.General
                 success = true;
                 if (returnType.IsEnum)
                 {
-                    if (value == null) value = "";
+                    value = value ?? "";
                     if (DefaultStringToEnumConverters.TryGetValue(returnType, out ConvertOrDefaultFunc converter))
                     {
                         (object item1, bool item2) = converter(value, defaultValue);
@@ -207,7 +218,7 @@ namespace CSharpUtilsNETStandard.Utils.Extensions.General
         }
 
         [NotNull]
-        private static T PrintConversionFailureMessageAndReturnDefault<T>([CanBeNull] string value, [CanBeNull] Exception exception, [NotNull] T defaultValue, LogLevel? failureLogLevel)
+        private static T PrintConversionFailureMessageAndReturnDefault<T>([CanBeNull] string value, [CanBeNull] Exception exception, [NotNull] T defaultValue, [CanBeNull] LogLevel? failureLogLevel)
             where T : IConvertible
         {
             if (failureLogLevel.HasValue)
@@ -219,15 +230,16 @@ namespace CSharpUtilsNETStandard.Utils.Extensions.General
         }
 
         [NotNull]
-        private static string GetMessage<T>([CanBeNull] string value, [NotNull] T defaultValue, bool nullOrWhiteSpaceMessage) where T : IConvertible
+        private static string GetMessage<T>([CanBeNull] string value, [NotNull] T defaultValue, bool nullOrWhiteSpaceMessage)
+            where T : IConvertible
         {
-            string nonNullValue = value == null ? string.Format("(without first and last \") \"{0}\"", value) : "NULL";
+            string nonNullValue = value == null ? $"(without first and last \") \"{value}\"" : "NULL";
             string defaultValueString = defaultValue.ToStringOrEmpty();
-            if (string.IsNullOrWhiteSpace(defaultValueString)) defaultValueString = string.Format("(without first and last \") \"{0}\"", defaultValueString);
+            if (string.IsNullOrWhiteSpace(defaultValueString)) defaultValueString = $"(without first and last \") \"{defaultValueString}\"";
             StringBuilder message = new StringBuilder();
             message.AppendFormat("The string {0} could not be converted to the type {1}.\nReason: ", nonNullValue, typeof(T).Name);
             message.Append(nullOrWhiteSpaceMessage ? "The string was null, empty or only whitespaces." : "See exception below.");
-            if (typeof(T).IsEnum) message.AppendFormat("\nAllowed enum values: {0}", typeof(T).GetEnumNames().ToReadableString());
+            if (typeof(T).IsEnum) message.AppendFormat("\nAllowed enum values: {0}", typeof(T).GetEnumNames()?.ToReadableString() ?? $"ERROR! {typeof(T).GetEnumNames()} returned null!");
             message.AppendFormat("\nThis error could be due to invalid data stored in the database or bugs in the code.\nThe default value {0} will be returned.", defaultValueString);
             message.AppendFormat("\n> Full Stack-Trace:\n{0}", new StackTrace(true));
             return message.ToString();

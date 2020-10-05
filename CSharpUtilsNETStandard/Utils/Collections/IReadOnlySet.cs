@@ -12,24 +12,34 @@ namespace CSharpUtilsNETStandard.Utils.Collections
     {
         [Pure]
         bool Contains([NotNull] T item);
+
         [NotNull, Pure]
         HashSet<T> UnionWithPure([NotNull] IEnumerable<T> other);
+
         [NotNull, Pure]
         HashSet<T> IntersectWithPure([NotNull] IEnumerable<T> other);
+
         [NotNull, Pure]
         HashSet<T> ExceptWithPure([NotNull] IEnumerable<T> other);
+
         [NotNull, Pure]
         HashSet<T> SymmetricExceptWithPure([NotNull] IEnumerable<T> other);
+
         [Pure]
         bool IsSubsetOf([NotNull] IEnumerable<T> other);
+
         [Pure]
         bool IsSupersetOf([NotNull] IEnumerable<T> other);
+
         [Pure]
         bool IsProperSupersetOf([NotNull] IEnumerable<T> other);
+
         [Pure]
         bool IsProperSubsetOf([NotNull] IEnumerable<T> other);
+
         [Pure]
         bool Overlaps([NotNull] IEnumerable<T> other);
+
         [Pure]
         bool SetEquals([NotNull] IEnumerable<T> other);
     }

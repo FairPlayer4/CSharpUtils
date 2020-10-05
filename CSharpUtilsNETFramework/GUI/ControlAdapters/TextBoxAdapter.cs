@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
@@ -20,13 +21,20 @@ namespace CSharpUtilsNETFramework.GUI.ControlAdapters
         [PublicAPI]
         public sealed class ExtendedKeyPressEventArgs
         {
+            [NotNull]
             public readonly TextBoxAdapter<T> Sender;
+
             public readonly char TypedCharacter;
+
+            [CanBeNull]
             public readonly string CurrentString;
+
+            [CanBeNull]
             public readonly T CurrentValue;
+
             public readonly int CursorPosition;
 
-            public ExtendedKeyPressEventArgs(TextBoxAdapter<T> sender, char character, string currentString, T currentValue, int cursorPosition)
+            public ExtendedKeyPressEventArgs([NotNull] TextBoxAdapter<T> sender, char character, [CanBeNull] string currentString, [CanBeNull] T currentValue, int cursorPosition)
             {
                 Sender = sender;
                 TypedCharacter = character;
@@ -38,9 +46,16 @@ namespace CSharpUtilsNETFramework.GUI.ControlAdapters
 
         public delegate void ExtendedKeyPressEventHandler(ExtendedKeyPressEventArgs e);
 
-        public delegate void AfterValueAcceptedEventHandler(TextBoxAdapter<T> sender, string currentString, T currentValue);
+        public delegate void AfterValueAcceptedEventHandler([NotNull] TextBoxAdapter<T> sender, [CanBeNull] string currentString, [CanBeNull] T currentValue);
 
-        public delegate void BeforeValueAcceptedEventHandler(TextBoxAdapter<T> sender, string previousString, T previousValue, string newString, T newValue, [NotNull]CancelEventArgs cancelEvent);
+        public delegate void BeforeValueAcceptedEventHandler(
+            [NotNull] TextBoxAdapter<T> sender,
+            [CanBeNull] string previousString,
+            [CanBeNull] T previousValue,
+            [CanBeNull] string newString,
+            [CanBeNull] T newValue,
+            [NotNull] CancelEventArgs cancelEvent
+        );
 
         public bool AcceptValueOnValidKeyPress { get; set; }
 
@@ -51,31 +66,38 @@ namespace CSharpUtilsNETFramework.GUI.ControlAdapters
         public bool KeepFocusIfContentIsInvalid { get; set; }
 
         public bool HideShowDefaultValue { get; set; }
+
         [NotNull]
         protected abstract string ToolTipTextOnInvalidValue { get; }
 
-        protected abstract bool AllowChar(char keyChar, [NotNull]string contentBefore, int cursorPosition, [NotNull]out string toolTipOnKeyPress);
+        protected abstract bool AllowChar(char keyChar, [NotNull] string contentBefore, int cursorPosition, [NotNull] out string toolTipOnKeyPress);
 
-        protected abstract bool IsContentValid([NotNull]string content);
+        protected abstract bool IsContentValid([NotNull] string content);
 
-        protected abstract bool TryRepairContent([NotNull]string content, [NotNull]out string repairedContent);
+        protected abstract bool TryRepairContent([NotNull] string content, [NotNull] out string repairedContent);
+
         [NotNull]
         private readonly ToolTip TextBoxToolTip;
 
         [CanBeNull]
-        protected abstract T StringToValue([NotNull]string content);
+        protected abstract T StringToValue([NotNull] string content);
+
         [NotNull]
-        protected abstract string ValueToString([CanBeNull]T value);
+        protected abstract string ValueToString([CanBeNull] T value);
+
         [NotNull]
         public string DefaultText { get; set; }
+
         [CanBeNull]
         public abstract T DefaultValue { get; set; }
+
         [CanBeNull]
         public T CurrentValue
         {
             get => StringToValue(CurrentString);
             set => CurrentString = ValueToString(value);
         }
+
         [NotNull]
         public string CurrentString
         {
@@ -93,6 +115,7 @@ namespace CSharpUtilsNETFramework.GUI.ControlAdapters
                 }
             }
         }
+
         public int CursorPosition
         {
             get => TextBox.SelectionStart;
@@ -116,14 +139,18 @@ namespace CSharpUtilsNETFramework.GUI.ControlAdapters
         [CanBeNull]
         public event AfterValueAcceptedEventHandler AfterValueAcceptedEvent;
 
+        [CanBeNull]
         public event BeforeValueAcceptedEventHandler BeforeValueAcceptedEvent;
+
         [CanBeNull]
         public event ExtendedKeyPressEventHandler InvalidCharTypedEvent;
+
         [CanBeNull]
         public event ExtendedKeyPressEventHandler ValidCharTypedEvent;
 
         [CanBeNull]
         public string LastAcceptedString { get; private set; }
+
         [CanBeNull]
         public T LastAcceptedValue => LastAcceptedString == null ? DefaultValue : StringToValue(LastAcceptedString);
 
@@ -143,7 +170,7 @@ namespace CSharpUtilsNETFramework.GUI.ControlAdapters
             DefaultText = "";
         }
 
-        protected TextBoxAdapter([NotNull] TextBox textBox, [NotNull]string defaultText, bool hideShowDefaultValue) : this(textBox)
+        protected TextBoxAdapter([NotNull] TextBox textBox, [NotNull] string defaultText, bool hideShowDefaultValue) : this(textBox)
         {
             DefaultText = defaultText;
             CurrentString = defaultText;
@@ -172,26 +199,22 @@ namespace CSharpUtilsNETFramework.GUI.ControlAdapters
             TextBox.Leave -= HandleLeaveEvent;
         }
 
-        private void HandleEnterEvent(object sender, EventArgs e)
+        private void HandleEnterEvent([CanBeNull] object sender, [CanBeNull] EventArgs e)
         {
-            if (CurrentString == DefaultText)
-            {
-                if (LastAcceptedString == null) LastAcceptedString = DefaultText;
+            if (CurrentString != DefaultText) return;
+            LastAcceptedString = LastAcceptedString ?? DefaultText;
 
-                if (HideShowDefaultValue)
-                {
-                    TextBox.SelectionStart = 0;
-                    TextBox.SelectionLength = LastAcceptedString.Length;
-                }
-            }
+            if (!HideShowDefaultValue) return;
+            TextBox.SelectionStart = 0;
+            TextBox.SelectionLength = LastAcceptedString.Length;
         }
 
-        private void HandleLeaveEvent(object sender, EventArgs e)
+        private void HandleLeaveEvent([CanBeNull] object sender, [CanBeNull] EventArgs e)
         {
             if (HideShowDefaultValue && string.IsNullOrWhiteSpace(CurrentString)) CurrentString = DefaultText;
         }
 
-        private void HandleTextChangedEvent(object sender, EventArgs e)
+        private void HandleTextChangedEvent([CanBeNull] object sender, [CanBeNull] EventArgs e)
         {
             if (DisableTextChangedEvent) return;
             HandleTextChangedEvent();
@@ -205,21 +228,24 @@ namespace CSharpUtilsNETFramework.GUI.ControlAdapters
             int textWidthWithMargins = TextRenderer.MeasureText(TextBox.Text, TextBox.Font).Width + 6;
             TextBox.Width = textWidthWithMargins > TextBoxInitialWidth ? textWidthWithMargins : TextBoxInitialWidth;
         }
+
         [CanBeNull]
         private bool? ValidKeyPressOccurred;
 
-        [NotNull] private string TooltipTextOnKeyPress = "";
+        [NotNull]
+        private string TooltipTextOnKeyPress = "";
+
         [CanBeNull]
         private ExtendedKeyPressEventArgs LastKeyPressEventArgs;
 
-        private void HandleKeyPressEvent(object sender, [NotNull] KeyPressEventArgs e)
+        private void HandleKeyPressEvent([CanBeNull] object sender, [NotNull] KeyPressEventArgs e)
         {
             LastKeyPressEventArgs = new ExtendedKeyPressEventArgs(this, e.KeyChar, CurrentString, CurrentValue, CursorPosition);
             ValidKeyPressOccurred = AllowChar(e.KeyChar, CurrentString, CursorPosition, out TooltipTextOnKeyPress);
             e.Handled = ValidKeyPressOccurred == false;
         }
 
-        private void HandleKeyDownEvent(object sender, [NotNull] KeyEventArgs e)
+        private void HandleKeyDownEvent([CanBeNull] object sender, [NotNull] KeyEventArgs e)
         {
             TextBoxToolTip.Hide(TextBox);
             ToolTipTimer?.StopTimer(false);
@@ -237,16 +263,16 @@ namespace CSharpUtilsNETFramework.GUI.ControlAdapters
             }
         }
 
-        private void HandleKeyUpEvent(object sender, KeyEventArgs e)
+        private void HandleKeyUpEvent([CanBeNull] object sender, [CanBeNull] KeyEventArgs e)
         {
             try
             {
-                if (ValidKeyPressOccurred == false)
+                if (ValidKeyPressOccurred == false && LastKeyPressEventArgs != null)
                 {
                     InvalidCharTypedEvent?.Invoke(LastKeyPressEventArgs);
                 }
 
-                if (ValidKeyPressOccurred == true)
+                if (ValidKeyPressOccurred == true && LastKeyPressEventArgs != null)
                 {
                     ValidCharTypedEvent?.Invoke(LastKeyPressEventArgs);
                     if (AcceptValueOnValidKeyPress && ValidateAndRepairContent()) SendValueAcceptedEvent(); //TODO dangerous since char might not be written yet TEST!
@@ -268,7 +294,12 @@ namespace CSharpUtilsNETFramework.GUI.ControlAdapters
             if (BeforeValueAcceptedEvent != null)
             {
                 CancelEventArgs cancelEvent = new CancelEventArgs();
-                BeforeValueAcceptedEvent(this, LastAcceptedString, LastAcceptedValue, currentString, CurrentValue, cancelEvent);
+                BeforeValueAcceptedEvent(this,
+                                         LastAcceptedString,
+                                         LastAcceptedValue,
+                                         currentString,
+                                         CurrentValue,
+                                         cancelEvent);
                 if (cancelEvent.Cancel)
                 {
                     CurrentString = LastAcceptedString ?? DefaultText;
@@ -282,7 +313,7 @@ namespace CSharpUtilsNETFramework.GUI.ControlAdapters
             }
         }
 
-        private void HandleValidatingEvent(object sender, CancelEventArgs e)
+        private void HandleValidatingEvent([CanBeNull] object sender, [NotNull] CancelEventArgs e)
         {
             if (ValidateAndRepairContent()) SendValueAcceptedEvent();
             else if (KeepFocusIfContentIsInvalid) e.Cancel = true;
@@ -298,21 +329,25 @@ namespace CSharpUtilsNETFramework.GUI.ControlAdapters
             }
             if (repairedString != currentString) CurrentString = repairedString;
             return true;
-
         }
 
+        [CanBeNull]
         private TimerAction<bool> ToolTipTimer;
 
-        private void ShowToolTip([NotNull]string text)
+        [SuppressMessage("ReSharper", "ConditionIsAlwaysTrueOrFalse")]
+        private void ShowToolTip([NotNull] string text)
         {
             if (!ShowToolTips || string.IsNullOrWhiteSpace(text)) return;
             TextBoxToolTip.Show(text, TextBox);
-            if (ToolTipTimer == null) ToolTipTimer = new TimerAction<bool>(() => true, value =>
-            {
-                // Need to check for null
-                // ReSharper disable once ConditionIsAlwaysTrueOrFalse
-                if (TextBoxToolTip != null && TextBox != null) TextBoxToolTip.Hide(TextBox);
-            }, (value, newValue) => true, 2000);
+            if (ToolTipTimer == null)
+                ToolTipTimer = new TimerAction<bool>(() => true,
+                                                     value =>
+                                                     {
+                                                         // Need to check for null
+                                                         if (TextBoxToolTip != null && TextBox != null) TextBoxToolTip.Hide(TextBox);
+                                                     },
+                                                     (value, newValue) => true,
+                                                     2000);
             else ToolTipTimer.RestartTimer();
         }
 
@@ -338,6 +373,8 @@ namespace CSharpUtilsNETFramework.GUI.ControlAdapters
         private const char Zero = '0';
         private const char Negation = '-';
         public IntRange AllowedRange { get; set; }
+
+        [CanBeNull]
         public Func<int, bool> IsValueValidFunction { get; set; }
 
         public bool IsValueValid(int value) => AllowedRange.IsInRange(value) && (IsValueValidFunction == null || IsValueValidFunction(value));
@@ -357,7 +394,6 @@ namespace CSharpUtilsNETFramework.GUI.ControlAdapters
         public IntegerTextBoxAdapter([NotNull] TextBox textBox, IntRange range) : base(textBox)
         {
             AllowedRange = range;
-            if (!AllowedRange.IsValid) AllowedRange = IntRange.MaxRange; //TODO probably warning
             if (AllowedRange.OnlyNegative) CurrentString = Negation.ToString();
         }
 
@@ -365,7 +401,6 @@ namespace CSharpUtilsNETFramework.GUI.ControlAdapters
         {
             if (defaultValue.HasValue) DefaultValue = defaultValue.Value;
             AllowedRange = range;
-            if (!AllowedRange.IsValid) AllowedRange = IntRange.MaxRange; //TODO probably warning
             if (AllowedRange.OnlyNegative) CurrentString = Negation.ToString();
         }
 
@@ -375,7 +410,7 @@ namespace CSharpUtilsNETFramework.GUI.ControlAdapters
         {
             toolTipOnKeyPress = "";
             if (char.IsControl(keyChar)) return true;
-            if (CursorPosition == 0 && keyChar == Negation && !AllowedRange.OnlyPositive && !contentBefore.StartsWithOrdinal(Negation.ToString())) return true;
+            if (CursorPosition == 0 && keyChar == Negation && !AllowedRange.OnlyNonNegative && !contentBefore.StartsWithOrdinal(Negation.ToString())) return true;
             if (!char.IsDigit(keyChar))
             {
                 toolTipOnKeyPress = "Only digits are allowed.";
@@ -419,7 +454,7 @@ namespace CSharpUtilsNETFramework.GUI.ControlAdapters
                 }
                 else
                 {
-                    if (AllowedRange.OnlyPositive)
+                    if (AllowedRange.OnlyNonNegative)
                     {
                         containsDigitThatIsNotZero |= c != Zero;
                         if (char.IsDigit(c)) recreation.Append(c);
@@ -461,6 +496,5 @@ namespace CSharpUtilsNETFramework.GUI.ControlAdapters
         {
             if (AllowedRange.OnlyNegative && !CurrentString.StartsWithOrdinal(Negation.ToString())) CurrentString = Negation + CurrentString;
         }
-
     }
 }

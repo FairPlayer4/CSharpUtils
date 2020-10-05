@@ -24,6 +24,5 @@ namespace CSharpUtilsNETStandard.Utils.Collections
 
         [CanBeNull]
         TValue GetValueOrDefault([NotNull] TKey key, [CanBeNull] TValue defaultValue = default);
-
     }
 }
